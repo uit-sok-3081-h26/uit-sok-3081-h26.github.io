@@ -10,16 +10,16 @@ After completing the core content of the course, we will hold weekly seminar ses
 - [Seminarplan](seminarplan.html){:target="blank"}
 
 
-[Timetable](https://tp.educloud.no/uit/app/schedule?semester=25h&scheduleType=course&filterOpen=true&summary=true&tab=calendar&course=SOK-3020%C2%A41&subjectArea=186341300){:target="blank"} on timeplan.uit.no
+[Timetable](https://tp.educloud.no/uit/app/schedule?semester=26h&scheduleType=course&filterOpen=true&summary=true&pastWeeks=false&tab=calendar&course=SOK-3081%C2%A41&subjectArea=186341300){:target="blank"} on timeplan.uit.no
 
 
 ## Course Description
 The course gives a wide introduction to applied econometrics. It introduces the student to methodologies for analyzing economic problems using quantitative methods. There will be an emphasis on linking microeconomic theory to estimation techniques, and interpreting the results of various quantitative exercises using the R software environment for statistical computing and graphics. Upon completing this course, students should have become proficient in developing and interpreting linear regression models as applied to various economic problems and datasets.
 
-Se full description [here](https://uit.no/utdanning/emner/emne/874196/sok-3020){:target="blank"}
+Se full description [here](https://uit.no/utdanning/emner/emne/923607/sok-3081){:target="blank"}
 
 ## Instructors 
-- [Øystein Myrland](https://uit.no/ansatte/oystein.myrland){:target="blank"} (course responsible)
+- [Øystein Myrland](https://uit.no/ansatte/oystein.myrland){:target="blank"} 
 - [Dejene Gizaw Kidane](https://uit.no/ansatte/dejene.g.kidane){:target="blank"}
 
 
