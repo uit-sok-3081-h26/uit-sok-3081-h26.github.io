@@ -24,8 +24,6 @@
 |    |       |  [RStudio IDE :: Cheatsheet](https://rstudio.github.io/cheatsheets/html/rstudio-ide.html){:target='_blank_'}   |
 |    |       |  Web alternative: <https://jupyter.uit.no> R environment | 
 |    |       |  [Data files from Principles of Econometrics](https://www.principlesofeconometrics.com/poe5/poe5data.html){:target='blank'}    |
-|    |       |  [our first R snippet](https://raw.githubusercontent.com/UiT-SOK-3020-H25/UiT-SOK-3020-H25.github.io/refs/heads/main/our_first_R_snippet.r){:target='_blank_'} [LLM annotated R code](https://chatgpt.com/share/6895fe8c-f40c-8011-9606-3c8886a7f9b9) |
-|   |       | [my first R exercise](https://raw.githubusercontent.com/UiT-SOK-3020-H25/UiT-SOK-3020-H25.github.io/refs/heads/main/my_first_R_exercise.r){:target='_blank_'}  |
 |    |    | Browse the paper “Econometric Computing with R” (in Files/Readings in Canvas) |
 |  1 | 17/08 | Chapter 1. An introduction to econometrics  | 
 |  2 | 18/08  | Appendix A: [Mathematical Tools in R]   |
