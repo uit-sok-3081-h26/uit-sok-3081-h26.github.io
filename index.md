@@ -1,5 +1,9 @@
 {% include navbar.html %}  {% include top-box.html %}
 
+## How This Course Works
+
+[This page explains how the lectures and seminars are linked to the final exam](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/course-approach.html)
+
 ## Course Plan
 
 The lecture and seminar plan contains information about the timing, topics, course instructor, as well as resources/tasks for each topic.  
