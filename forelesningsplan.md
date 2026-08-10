@@ -30,4 +30,4 @@
 |  1 | 17/08 | Chapter 1. An introduction to econometrics  | 
 |  2 | 18/08  | Appendix A: [Mathematical Tools in R]   |
 | 3  | 19/08    | Appendix B: Probability Concepts   |
-| 4 | 20/8    |  Appendix C: Review of Statistical Inference                           |
+| 4 | 20/08    |  Appendix C: Review of Statistical Inference     |
