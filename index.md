@@ -2,7 +2,7 @@
 
 ## How This Course Works
 
-[This page explains how the lectures and seminars are linked to the final exam](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/course-approach.html)
+[This page explains how the lectures and seminars are linked to the final exam]([https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/course-approach.html](https://uit-sok-3081-h26.github.io/course-approach.html)
 
 ## Course Plan
 
