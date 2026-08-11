@@ -1,0 +1,1134 @@
+---
+title: "Appendix B — R Companion: Probability Concepts for Econometrics"
+subtitle: "Additional student resource for Lecture 02"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    code-tools: true
+    code-overflow: wrap
+    smooth-scroll: true
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: visual
+---
+
+# How to use this companion
+
+This is an **R companion to Appendix B: Probability Concepts** in *Principles of Econometrics, 5th edition*. It is not intended to replace the textbook and it is not a list of formulas to memorise.
+
+The purpose is to connect probability concepts to the questions that matter later in econometrics:
+
+- What is random in an economic model?
+- What changes when we condition on information?
+- What does $E(Y\mid X)$ mean?
+- How can total variation be separated into systematic and remaining variation?
+- What does correlation measure --- and what does it miss?
+- Why do probability distributions and random-number generation matter for estimation and inference?
+
+::: {.callout-important title="The central econometric idea"}
+A regression is usually not trying to predict every individual outcome exactly. It describes systematic features of the **conditional distribution** of an outcome, especially the conditional mean $E(Y\mid X)$.
+:::
+
+## Textbook map
+
+The companion emphasizes the following parts of Appendix B:
+
+| Companion topic | Textbook section |
+|---|---|
+| Random variables, expectation, variance | B.1--B.1.2 |
+| Joint, marginal and conditional distributions | B.1.3 |
+| Covariance and correlation | B.1.5 |
+| Conditional expectation | B.1.6 |
+| Iterated expectations | B.1.7 |
+| Variance decomposition | B.1.8 |
+| Continuous random variables | B.2 |
+| Important probability distributions | B.3 |
+| Random numbers and inversion | B.4 |
+
+Sections 1--6 are the **econometric core**. Sections 7--10 are primarily reference and exploration material.
+
+# Random variables: concepts and realizations
+
+A **random variable** is a variable whose value is unknown until it is observed. In economics, examples include:
+
+- whether a consumer buys a product;
+- the number of unemployment claims in a week;
+- hourly wages;
+- household expenditure;
+- the number of visits to a shopping centre.
+
+The important distinction is
+
+$$
+X = \text{the random variable},
+\qquad
+x = \text{a realized value of } X.
+$$
+
+For example, $WAGE$ can be treated as a random variable, while NOK 285 per hour is one realization.
+
+## A simple discrete distribution
+
+Suppose $X$ is the number of courses failed by a randomly selected student:
+
+```{r}
+#| label: discrete-example
+#| fig-cap: "A simple discrete probability distribution."
+
+x_values <- c(0, 1, 2)
+probabilities <- c(0.70, 0.20, 0.10)
+
+# A valid probability distribution must sum to one
+sum(probabilities)
+
+barplot(
+  probabilities,
+  names.arg = x_values,
+  main = "Distribution of Failed Courses",
+  xlab = "Number of courses failed",
+  ylab = "Probability"
+)
+```
+
+For a discrete random variable, the textbook writes
+
+$$
+f(x)=P(X=x),
+$$
+
+with
+
+$$
+0\leq f(x)\leq1,
+\qquad
+\sum_x f(x)=1.
+$$
+
+::: {.callout-note title="Terminology"}
+The textbook uses **pdf** for discrete as well as continuous random variables. Many statistics texts call the discrete version a **probability mass function (pmf)**. The probability calculations are the same.
+:::
+
+# Expected value and variance
+
+## Expected value
+
+The expected value is a probability-weighted average:
+
+$$
+E(X)=\mu_X=\sum_x x f(x).
+$$
+
+```{r}
+#| label: discrete-expectation
+
+expected_value <- sum(x_values * probabilities)
+expected_value
+```
+
+The result does **not** mean that a randomly selected student must fail exactly that many courses. Expectation is a property of the distribution, not a guaranteed realization.
+
+Useful rules include
+
+$$
+E(aX+b)=aE(X)+b,
+$$
+
+and, for any two random variables,
+
+$$
+E(X+Y)=E(X)+E(Y).
+$$
+
+If $X$ and $Y$ are independent, then
+
+$$
+E(XY)=E(X)E(Y).
+$$
+
+## Variance and standard deviation
+
+Variance measures dispersion around the expected value:
+
+$$
+\operatorname{Var}(X)
+=E[(X-\mu_X)^2]
+=E(X^2)-\mu_X^2.
+$$
+
+```{r}
+#| label: discrete-variance
+
+E_X2 <- sum(x_values^2 * probabilities)
+variance_X <- E_X2 - expected_value^2
+sd_X <- sqrt(variance_X)
+
+c(
+  expectation = expected_value,
+  variance = variance_X,
+  standard_deviation = sd_X
+)
+```
+
+For constants $a$ and $b$,
+
+$$
+\operatorname{Var}(aX+b)=a^2\operatorname{Var}(X).
+$$
+
+For two random variables,
+
+$$
+\operatorname{Var}(X+Y)
+=
+\operatorname{Var}(X)
++
+\operatorname{Var}(Y)
++
+2\operatorname{Cov}(X,Y).
+$$
+
+::: {.callout-tip title="Why this matters for econometrics"}
+Later we will distinguish between variation that a regression can account for systematically and variation that remains around the fitted relationship. Variance is therefore not just a descriptive statistic; it becomes part of the logic of regression.
+:::
+
+# Joint, marginal and conditional distributions
+
+Probability becomes especially useful for econometrics when we move from one random variable to **two variables observed jointly**.
+
+For discrete $X$ and $Y$,
+
+$$
+f(x,y)=P(X=x,Y=y)
+$$
+
+is the joint distribution. Marginal distributions are obtained by summing over the other variable.
+
+## Example: employment status and gender
+
+Consider this hypothetical population joint distribution:
+
+```{r}
+#| label: joint-distribution
+
+employment_data <- matrix(
+  c(0.30, 0.20,
+    0.15, 0.35),
+  nrow = 2,
+  dimnames = list(
+    Gender = c("Male", "Female"),
+    Employment = c("Employed", "Unemployed")
+  )
+)
+
+employment_data
+sum(employment_data)
+```
+
+The marginal distributions are
+
+```{r}
+#| label: marginal-distributions
+
+margin_gender <- rowSums(employment_data)
+margin_employment <- colSums(employment_data)
+
+margin_gender
+margin_employment
+```
+
+## Conditioning means using information
+
+Without information about gender, the probability of unemployment is
+
+```{r}
+#| label: conditional-probability
+
+p_unemployed <- margin_employment["Unemployed"]
+p_unemployed
+```
+
+Conditional on the individual being female,
+
+$$
+P(U\mid Female)
+=
+\frac{P(U,Female)}{P(Female)}.
+$$
+
+```{r}
+p_unemployed_given_female <-
+  employment_data["Female", "Unemployed"] /
+  margin_gender["Female"]
+
+c(
+  P_unemployed = p_unemployed,
+  P_unemployed_given_female = p_unemployed_given_female
+)
+```
+
+The probability changes because the information set changes.
+
+::: {.callout-important title="Econometric bridge"}
+This is the same conceptual move we make when going from $E(Y)$ to $E(Y\mid X)$. **Conditioning means using information about $X$ to describe the distribution of $Y$.**
+:::
+
+## Independence
+
+$X$ and $Y$ are independent if
+
+$$
+f(x,y)=f_X(x)f_Y(y)
+$$
+
+for every possible pair $(x,y)$.
+
+The joint distribution that would arise under independence is
+
+```{r}
+#| label: independence-check
+
+joint_if_independent <- outer(margin_gender, margin_employment)
+
+joint_if_independent
+employment_data
+```
+
+The two tables differ, so the variables in this hypothetical example are not independent.
+
+# Conditional expectation: the foundation for regression
+
+The **conditional expectation**
+
+$$
+E(Y\mid X=x)
+$$
+
+is the average value of $Y$ among observations for which $X=x$.
+
+This is one of the most important ideas in introductory econometrics.
+
+## A simulated income--education population
+
+We construct an economic example where income varies systematically with education but also contains substantial individual variation.
+
+```{r}
+#| label: income-data
+
+set.seed(131415)
+
+n <- 5000
+education_levels <- 8:20
+
+# These probabilities sum to exactly one
+education_probs_population <- c(
+  0.03, 0.04, 0.05, 0.06, 0.07,
+  0.09, 0.12, 0.14, 0.12, 0.10,
+  0.08, 0.06, 0.04
+)
+
+sum(education_probs_population)
+
+education <- sample(
+  education_levels,
+  size = n,
+  replace = TRUE,
+  prob = education_probs_population
+)
+
+# Systematic component plus individual variation
+income <- 20000 + 3000 * education + rnorm(n, mean = 0, sd = 10000)
+
+income_data <- data.frame(
+  education = education,
+  income = income
+)
+```
+
+The data-generating relationship was chosen so that
+
+$$
+E(INCOME\mid EDUCATION)
+=
+20000+3000\,EDUCATION.
+$$
+
+But an individual person's income is not determined by education alone.
+
+## Estimate conditional means
+
+```{r}
+#| label: conditional-means
+
+conditional_means <- with(
+  income_data,
+  tapply(income, education, mean)
+)
+
+round(conditional_means, 0)
+```
+
+Visualize the full conditional distributions, not only the means:
+
+```{r}
+#| label: income-boxplot
+#| fig-cap: "Income distributions conditional on education. Red points show conditional means."
+
+boxplot(
+  income ~ education,
+  data = income_data,
+  main = "Income Distribution by Education Level",
+  xlab = "Years of education",
+  ylab = "Income"
+)
+
+points(
+  seq_along(conditional_means),
+  conditional_means,
+  pch = 19,
+  cex = 1.15
+)
+```
+
+::: {.callout-warning title="Do not confuse a conditional mean with an individual outcome"}
+If $E(INCOME\mid EDUCATION=16)=70{,}000$, this does **not** imply that every person with 16 years of education earns 70,000. It describes the centre of a conditional distribution.
+:::
+
+# Law of iterated expectations
+
+The law of iterated expectations states
+
+$$
+E(Y)=E_X[E(Y\mid X)].
+$$
+
+In words:
+
+> The unconditional mean can be recovered by averaging the conditional means, using the distribution of $X$ as weights.
+
+Using the simulated income data:
+
+```{r}
+#| label: iterated-expectations
+
+education_probs_sample <- prop.table(table(income_data$education))
+
+mean_from_conditionals <- sum(
+  conditional_means * education_probs_sample
+)
+
+overall_mean <- mean(income_data$income)
+
+c(
+  overall_mean = overall_mean,
+  mean_from_conditional_means = mean_from_conditionals
+)
+```
+
+The two values are the same apart from numerical rounding because every observation is represented in exactly one education group.
+
+::: {.callout-tip title="Interpretation"}
+The law is mathematically simple but conceptually powerful: an unconditional population quantity can often be understood by first conditioning on economically relevant information and then averaging back over that information.
+:::
+
+# Variance decomposition: between and within variation
+
+Appendix B gives the identity
+
+$$
+\operatorname{Var}(Y)
+=
+\operatorname{Var}_X[E(Y\mid X)]
++
+E_X[\operatorname{Var}(Y\mid X)].
+$$
+
+Think of this as
+
+$$
+\boxed{
+\text{Total variation}
+=
+\text{between-group variation}
++
+\text{within-group variation}
+}
+$$
+
+For the identity to hold exactly in our finite teaching dataset, we calculate **population variances** using denominator $n$, rather than R's default sample variance with denominator $n-1$.
+
+```{r}
+#| label: population-variance-helper
+
+pop_var <- function(z) {
+  mean((z - mean(z))^2)
+}
+```
+
+## Exact decomposition in R
+
+```{r}
+#| label: variance-decomposition
+
+# Conditional variances calculated as population variances within each group
+conditional_vars <- with(
+  income_data,
+  tapply(income, education, pop_var)
+)
+
+# Realized probability of each education group in this sample
+p_x <- prop.table(table(income_data$education))
+
+# Total population variance
+var_total <- pop_var(income_data$income)
+
+# Variance of E(Y|X): weighted variation in conditional means
+var_between <- sum(
+  p_x * (conditional_means - mean(income_data$income))^2
+)
+
+# E[Var(Y|X)]: weighted average of within-group variances
+var_within <- sum(
+  p_x * conditional_vars
+)
+
+c(
+  total = var_total,
+  between = var_between,
+  within = var_within,
+  between_plus_within = var_between + var_within
+)
+```
+
+The numerical identity should satisfy
+
+$$
+\operatorname{Var}(Y)
+\approx
+\operatorname{Var}[E(Y\mid X)]
++
+E[\operatorname{Var}(Y\mid X)].
+$$
+
+The proportion of total variation occurring between education-group means is
+
+```{r}
+#| label: variance-share
+
+between_share <- var_between / var_total
+between_share
+```
+
+## Connection to regression and $R^2$
+
+Now estimate a regression with a separate indicator for every education category:
+
+```{r}
+#| label: group-regression
+
+model_group <- lm(income ~ factor(education), data = income_data)
+r2_group <- summary(model_group)$r.squared
+
+c(
+  variance_share = between_share,
+  regression_R2 = r2_group
+)
+```
+
+These numbers agree because this regression reproduces the observed conditional mean for each education group. The fitted values are therefore
+
+$$
+\widehat Y_i = \widehat E(Y\mid X_i).
+$$
+
+The usual regression decomposition
+
+$$
+TSS = ESS + RSS
+$$
+
+is closely related to the probability decomposition between systematic and remaining variation.
+
+### A specification choice: group means or a straight line?
+
+A separate mean for every education level is flexible. A simple regression instead imposes a linear pattern:
+
+```{r}
+#| label: linear-vs-group
+
+model_linear <- lm(income ~ education, data = income_data)
+
+c(
+  R2_group_means = summary(model_group)$r.squared,
+  R2_linear = summary(model_linear)$r.squared
+)
+```
+
+::: {.callout-important title="Econometric judgment"}
+The probability model tells us what conditional means are. Regression adds a **modeling choice** about how those conditional means depend on $X$. A straight line is one possible specification, not a mathematical necessity.
+:::
+
+# Covariance and correlation
+
+Covariance measures linear comovement:
+
+$$
+\operatorname{Cov}(X,Y)
+=
+E[(X-\mu_X)(Y-\mu_Y)]
+=
+E(XY)-\mu_X\mu_Y.
+$$
+
+Correlation standardizes covariance:
+
+$$
+\rho_{XY}
+=
+\frac{\operatorname{Cov}(X,Y)}{\sigma_X\sigma_Y},
+\qquad
+-1\leq\rho\leq1.
+$$
+
+Correlation measures the strength of a **linear** relationship.
+
+## A conventional linear example
+
+```{r}
+#| label: correlation-linear
+#| fig-cap: "A strong positive linear association."
+
+set.seed(123)
+
+x_linear <- rnorm(1000, mean = 50, sd = 10)
+y_linear <- 2 * x_linear + rnorm(1000, mean = 0, sd = 20)
+
+c(
+  covariance = cov(x_linear, y_linear),
+  correlation = cor(x_linear, y_linear)
+)
+
+plot(
+  x_linear,
+  y_linear,
+  pch = 16,
+  col = adjustcolor("black", alpha.f = 0.30),
+  xlab = "X",
+  ylab = "Y",
+  main = "Linear Association"
+)
+abline(lm(y_linear ~ x_linear), lwd = 2)
+```
+
+## The zero-correlation trap
+
+Before running the next example, predict what the correlation should be.
+
+```{r}
+#| label: correlation-nonlinear
+#| fig-cap: "Zero correlation does not imply independence."
+
+set.seed(321)
+
+x_nonlinear <- runif(2000, -1, 1)
+y_nonlinear <- x_nonlinear^2
+
+cor(x_nonlinear, y_nonlinear)
+
+plot(
+  x_nonlinear,
+  y_nonlinear,
+  pch = 16,
+  col = adjustcolor("black", alpha.f = 0.25),
+  xlab = "X",
+  ylab = "Y = X²",
+  main = "A Strong Nonlinear Relationship"
+)
+```
+
+$Y$ is completely determined by $X$, yet the correlation is approximately zero because positive and negative linear comovement cancel.
+
+::: {.callout-warning title="Important distinction"}
+Independence implies zero covariance (when the moments exist), but zero covariance or zero correlation does **not** generally imply independence.
+:::
+
+::: {.callout-note title="Also remember"}
+Correlation and conditional association are descriptive. Neither one, by itself, establishes a causal effect.
+:::
+
+# Reference: important discrete distributions
+
+The remaining sections are useful reference material. You do not need to memorise every formula before it becomes relevant in an econometric problem.
+
+## Bernoulli distribution
+
+A Bernoulli random variable has two outcomes:
+
+$$
+P(X=1)=p,
+\qquad
+P(X=0)=1-p.
+$$
+
+Its moments are
+
+$$
+E(X)=p,
+\qquad
+\operatorname{Var}(X)=p(1-p).
+$$
+
+Bernoulli variables are especially important for binary outcomes and indicator variables.
+
+## Binomial distribution
+
+If $X$ counts successes in $n$ independent Bernoulli trials with common success probability $p$,
+
+$$
+X\sim Binomial(n,p),
+$$
+
+with
+
+$$
+E(X)=np,
+\qquad
+\operatorname{Var}(X)=np(1-p).
+$$
+
+### R example: customer purchases
+
+```{r}
+#| label: binomial-example
+#| fig-cap: "Binomial distribution for the number of purchasers among 20 customers."
+
+n_customers <- 20
+prob_purchase <- 0.30
+k_values <- 0:n_customers
+
+prob_k <- dbinom(
+  k_values,
+  size = n_customers,
+  prob = prob_purchase
+)
+
+barplot(
+  prob_k,
+  names.arg = k_values,
+  main = "Binomial Distribution: n = 20, p = 0.30",
+  xlab = "Number of purchases",
+  ylab = "Probability"
+)
+
+c(
+  theoretical_mean = n_customers * prob_purchase,
+  theoretical_variance = n_customers * prob_purchase * (1 - prob_purchase)
+)
+```
+
+Simulate repeated groups of 20 customers:
+
+```{r}
+#| label: binomial-simulation
+
+set.seed(456)
+
+simulated_purchases <- rbinom(
+  5000,
+  size = n_customers,
+  prob = prob_purchase
+)
+
+c(
+  simulated_mean = mean(simulated_purchases),
+  simulated_variance = var(simulated_purchases)
+)
+```
+
+# Reference: continuous random variables
+
+A continuous random variable can take values in an interval. For any particular point,
+
+$$
+P(X=c)=0.
+$$
+
+Probabilities refer to intervals and are areas under the density:
+
+$$
+P(a\leq X\leq b)=\int_a^b f(x)\,dx.
+$$
+
+A valid continuous density satisfies
+
+$$
+f(x)\geq0
+$$
+
+and
+
+$$
+\int_{-\infty}^{\infty}f(x)\,dx=1.
+$$
+
+## Example: $f(x)=2(1-x)$ on $[0,1]$
+
+```{r}
+#| label: continuous-density
+#| fig-cap: "The density f(x) = 2(1-x) on [0,1]."
+
+x_grid <- seq(0, 1, length.out = 1000)
+density_grid <- 2 * (1 - x_grid)
+
+plot(
+  x_grid,
+  density_grid,
+  type = "l",
+  lwd = 2,
+  xlab = "x",
+  ylab = "f(x)",
+  main = "Continuous Density: f(x) = 2(1-x)"
+)
+
+integrate(
+  function(x) 2 * (1 - x),
+  lower = 0,
+  upper = 1
+)$value
+```
+
+Expectation and variance are obtained by integration:
+
+$$
+E(X)=\int x f(x)\,dx,
+$$
+
+$$
+\operatorname{Var}(X)=E(X^2)-[E(X)]^2.
+$$
+
+```{r}
+#| label: continuous-moments
+
+E_X <- integrate(
+  function(x) x * 2 * (1 - x),
+  lower = 0,
+  upper = 1
+)$value
+
+E_X2 <- integrate(
+  function(x) x^2 * 2 * (1 - x),
+  lower = 0,
+  upper = 1
+)$value
+
+Var_X <- E_X2 - E_X^2
+
+c(
+  expectation = E_X,
+  variance = Var_X
+)
+```
+
+# Reference: simulation by inversion
+
+For the density
+
+$$
+f(x)=2(1-x),\qquad0\leq x\leq1,
+$$
+
+the cumulative distribution function is
+
+$$
+F(x)=2x-x^2.
+$$
+
+If $U\sim Uniform(0,1)$ and $U=F(X)$, solving for $X$ gives
+
+$$
+X=1-\sqrt{1-U}.
+$$
+
+This is the **inversion method** discussed in Appendix B.4.
+
+```{r}
+#| label: inversion-simulation
+#| fig-cap: "Simulation from f(x) = 2(1-x) using the inversion method."
+
+set.seed(789)
+
+n_sim <- 100000
+u <- runif(n_sim)
+x_sim <- 1 - sqrt(1 - u)
+
+c(
+  theoretical_mean = 1 / 3,
+  simulated_mean = mean(x_sim),
+  theoretical_variance = 1 / 18,
+  simulated_variance = var(x_sim)
+)
+
+hist(
+  x_sim,
+  breaks = 40,
+  probability = TRUE,
+  main = "Simulation by Inversion",
+  xlab = "X"
+)
+
+curve(
+  2 * (1 - x),
+  from = 0,
+  to = 1,
+  add = TRUE,
+  lwd = 2
+)
+```
+
+::: {.callout-tip title="Why this version is preferable to rejection sampling here"}
+The inversion approach uses the CDF directly, matches Appendix B.4, and avoids a slow loop that repeatedly appends one accepted draw at a time.
+:::
+
+# Reference: uniform and normal distributions
+
+## Uniform distribution
+
+For $X\sim Uniform(a,b)$,
+
+$$
+f(x)=\frac{1}{b-a},
+\qquad a\leq x\leq b,
+$$
+
+$$
+E(X)=\frac{a+b}{2},
+\qquad
+\operatorname{Var}(X)=\frac{(b-a)^2}{12}.
+$$
+
+```{r}
+#| label: uniform-simulation
+
+set.seed(2026)
+
+uniform_samples <- runif(10000)
+
+c(
+  theoretical_mean = 0.5,
+  empirical_mean = mean(uniform_samples),
+  theoretical_variance = 1 / 12,
+  empirical_variance = var(uniform_samples)
+)
+```
+
+## Normal distribution
+
+If
+
+$$
+X\sim N(\mu,\sigma^2),
+$$
+
+the distribution is symmetric around $\mu$, with
+
+$$
+E(X)=\mu,
+\qquad
+\operatorname{Var}(X)=\sigma^2.
+$$
+
+```{r}
+#| label: normal-comparison
+#| fig-cap: "Two normal distributions with different means and variances."
+
+x_range <- seq(-4, 8, length.out = 1000)
+
+y_standard <- dnorm(x_range, mean = 0, sd = 1)
+y_shifted <- dnorm(x_range, mean = 2, sd = 1.5)
+
+plot(
+  x_range,
+  y_standard,
+  type = "l",
+  lwd = 2,
+  xlab = "x",
+  ylab = "Density",
+  main = "Comparison of Normal Distributions"
+)
+
+lines(x_range, y_shifted, lwd = 2, lty = 2)
+
+legend(
+  "topright",
+  legend = c("N(0,1)", "N(2,2.25)"),
+  lwd = 2,
+  lty = c(1, 2)
+)
+```
+
+R provides four useful families of functions for standard distributions:
+
+- `d...` for densities or probability masses;
+- `p...` for cumulative probabilities;
+- `q...` for quantiles;
+- `r...` for random draws.
+
+For the normal distribution these are `dnorm()`, `pnorm()`, `qnorm()` and `rnorm()`.
+
+```{r}
+#| label: normal-functions
+
+mean_score <- 75
+sd_score <- 10
+
+prob_above_85 <- 1 - pnorm(
+  85,
+  mean = mean_score,
+  sd = sd_score
+)
+
+score_90th <- qnorm(
+  0.90,
+  mean = mean_score,
+  sd = sd_score
+)
+
+c(
+  P_score_above_85 = prob_above_85,
+  percentile_90 = score_90th
+)
+```
+
+::: {.callout-warning title="Normality and regression"}
+Do not conclude that OLS requires the regression errors themselves to be normally distributed. Normality becomes useful for some exact finite-sample inference results, but it is **not required to calculate OLS estimates**.
+:::
+
+# Reference: pseudo-random numbers
+
+Computers use deterministic algorithms, so computer-generated random numbers are **pseudo-random**. For empirical work, the main practical lessons are:
+
+1. use established random-number routines;
+2. use `set.seed()` when reproducibility matters;
+3. document software and code used for simulation.
+
+## A simple linear congruential generator
+
+Appendix B describes recursive generators of the form
+
+$$
+X_t=(aX_{t-1}+c)\bmod m.
+$$
+
+The following code is for illustration only; use R's established generators in actual work.
+
+```{r}
+#| label: simple-rng
+
+simple_rng <- function(seed, n,
+                       a = 1664525,
+                       c = 1013904223,
+                       m = 2^32) {
+  x <- numeric(n)
+  x[1] <- seed
+
+  for (i in 2:n) {
+    x[i] <- (a * x[i - 1] + c) %% m
+  }
+
+  x / m
+}
+
+custom_random <- simple_rng(seed = 12345, n = 10000)
+
+c(
+  mean = mean(custom_random),
+  variance = var(custom_random),
+  minimum = min(custom_random),
+  maximum = max(custom_random)
+)
+```
+
+## Inversion with another distribution
+
+For an exponential distribution with rate $\lambda$,
+
+$$
+F^{-1}(u)=\frac{-\log(1-u)}{\lambda}.
+$$
+
+```{r}
+#| label: exponential-inversion
+#| fig-cap: "Exponential random numbers generated by inversion and by R's built-in generator."
+
+set.seed(20260811)
+
+lambda <- 2
+uniform_vals <- runif(5000)
+exponential_inversion <- -log(1 - uniform_vals) / lambda
+exponential_builtin <- rexp(5000, rate = lambda)
+
+par(mfrow = c(1, 2))
+
+hist(
+  exponential_inversion,
+  breaks = 35,
+  probability = TRUE,
+  main = "Via inversion",
+  xlab = "Value"
+)
+
+hist(
+  exponential_builtin,
+  breaks = 35,
+  probability = TRUE,
+  main = "R built-in",
+  xlab = "Value"
+)
+
+par(mfrow = c(1, 1))
+```
+
+# Self-check: five questions
+
+Use these questions to check whether you have understood the probability concepts rather than only the R commands.
+
+1. If $E(WAGE\mid EDUC=16)=300$, does a randomly selected person with 16 years of education have to earn 300? Explain.
+2. What is the difference between $P(U)$ and $P(U\mid Female)$ in the employment example?
+3. Why must the conditional means be **weighted** when using the law of iterated expectations?
+4. In the variance decomposition, what economic interpretation can you give to the between-group and within-group components?
+5. How can $Y=X^2$ have approximately zero correlation between $X$ and $Y$ even though $Y$ is completely determined by $X$?
+
+<details>
+<summary><strong>Check your answers</strong></summary>
+
+1. No. The conditional expectation is the average or centre of the conditional distribution; individual realizations can differ substantially.
+2. $P(U)$ uses no gender information. $P(U\mid Female)$ restricts the reference population to females; conditioning changes the information set.
+3. Education levels occur with different probabilities. An unweighted average would incorrectly treat rare and common education groups as equally prevalent.
+4. Between-group variation measures how conditional means differ across education groups; within-group variation measures the remaining dispersion among observations with the same education.
+5. Correlation measures linear association. For a symmetric $X$, the positive and negative linear comovement in the U-shaped relationship can cancel even though the nonlinear dependence is exact.
+
+</details>
+
+# Key takeaways for econometrics
+
+1. **Economic variables are random variables.** Observed data are realizations from distributions.
+2. **Conditioning means using information.** $E(Y)$ and $E(Y\mid X)$ answer different questions.
+3. **Conditional expectation is central to regression.** Regression models how the mean of $Y$ changes with information in $X$.
+4. **Variation has structure.** Total variation can be decomposed into variation between conditional means and variation remaining within conditional distributions.
+5. **Correlation measures linear association, not all dependence.** Zero correlation does not imply independence.
+6. **Association is not causation.** Probability and regression relationships need additional assumptions before receiving a causal interpretation.
+7. **Probability distributions are tools, not a catalogue to memorise.** Return to Bernoulli, normal, $t$, $\chi^2$, $F$, and related distributions when an econometric problem requires them.
+8. **Simulation should be reproducible.** Use established random-number routines and `set.seed()` when appropriate.
+
+::: {.callout-important title="The idea to carry into the next econometrics lecture"}
+$$
+\boxed{E(Y\mid X=x)\neq Y_i}
+$$
+
+Econometrics searches for systematic relationships in outcomes that remain uncertain.
+:::
