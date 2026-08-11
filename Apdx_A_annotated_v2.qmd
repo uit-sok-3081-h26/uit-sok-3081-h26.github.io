@@ -1,0 +1,652 @@
+---
+title: "Appendix A: Mathematical Tools in R"
+subtitle: "A companion script"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    embed-resources: true
+editor: visual
+---
+
+## How to use this document
+
+This script covers the **Remember / Understand / Apply / Analyze** layers of Appendix A — the parts you can work through alone, at your own pace, before class. It follows the book's own section numbers (A.1.1 … A.5) so you can jump between the text and the code.
+
+Two habits will make this actually useful instead of just something you scroll past:
+
+::: callout-tip
+## Predict, then run
+
+Before you run a chunk that produces a number or a plot, guess what you expect first — sign, rough shape, whether it should be bigger or smaller than the previous chunk. Then run it and check. Chunks marked **Predict first** are good places to do this deliberately.
+:::
+
+::: callout-important
+## This feeds directly into the live lecture
+
+Everything here uses small, self-contained toy functions. In lecture we apply the exact same four moves — derivative as marginal effect, partial derivatives, second-derivative checks, elasticity — to a real wage equation, live, with a deliberate live-coding failure built in. If a technique here feels mechanical, that's fine: this is where you learn the mechanics, not the judgment. The judgment part is what lecture is for.
+:::
+
+Load the `tidyverse` package (`dplyr`, `ggplot2`, and others) and clear the workspace.
+
+```{r}
+#| message: false
+library(tidyverse)
+rm(list = ls())
+```
+
+## A.1 Some Basics
+
+### A.1.2 Exponents
+
+```{r}
+2+1      # Add 2 and 1
+4-2      # Subtract 2 from 4
+2*3      # Multiply 2 by 3
+1/5      # Divide 1 by 5
+2^3      # 2 raised to the power of 3
+8^(1/3)  # Cube root of 8
+8^1/3    # NOT the same as above — this is (8^1)/3, order of operations matters
+```
+
+### Checking equality
+
+Use `==` to check for equality — but be aware of floating-point precision.
+
+```{r}
+4-2==2               # TRUE, exact integers compare fine
+1==.9999999999999    # FALSE — not exactly equal at 13 decimal places
+```
+
+::: callout-note
+In practice, when comparing two numbers that were each computed through several arithmetic steps (like the R output of two different regression methods that should be mathematically equivalent), don't use `==` directly. Use `isTRUE(all.equal(x, y))` instead, which allows a small numerical tolerance. You will hit this again the first time you compare two regression coefficients that "should" be identical and R says `FALSE`.
+:::
+
+```{r}
+isTRUE(all.equal(1, .9999999999999))  # TRUE — tolerant comparison
+```
+
+### Assigning values to variables
+
+```{r}
+a <- 2      # Assign value 2 to variable a
+b <- 5      # Assign value 5 to variable b
+a           # Print value of a
+b           # Print value of b
+c <- 3 ; c  # Assign value 3 to c, then print it on the same line
+```
+
+**Basic arithmetic using variables:**
+
+```{r}
+a + b  # Add values of a and b
+a / b  # Divide value of a by value of b
+```
+
+**Comparisons:**
+
+```{r}
+a > b   # Is a greater than b?
+a < b   # Is a less than b?
+
+c <- 5
+a*c < b*c   # Multiplying both sides by a POSITIVE number preserves the inequality
+
+c <- -4
+a*c < b*c   # Multiplying both sides by a NEGATIVE number flips the inequality
+```
+
+### Rounding numbers
+
+```{r}
+round(1/3, 4)       # Round 1/3 to 4 decimal places
+round(2*4.7536, 2)  # Round the product of 2 and 4.7536 to 2 decimal places
+```
+
+### Edge cases: zero, infinity
+
+```{r}
+2^0     # Any nonzero number to the power 0 is 1
+223^0   # same
+
+2/0     # Dividing a positive number by zero: +Inf
+-10/0   # Dividing a negative number by zero: -Inf
+
+0.8^Inf # x^Inf = 0 when 0 < x < 1
+2^Inf   # x^Inf = Inf when x > 1
+```
+
+### A.1.3 Scientific Notation
+
+R switches to scientific notation for very large or very small numbers. The `scipen` option controls how aggressively it does this.
+
+```{r}
+a <- 510000
+b <- 0.00000034
+
+a*b   # Multiply a and b
+a/b   # Divide a by b
+
+options(scipen = 15)   # Discourage scientific notation
+a / b
+b / a
+
+options(scipen = FALSE) # Reset to default behavior
+b / a
+```
+
+### A.1.4 Logarithms and the Number *e*
+
+```{r}
+options(scipen = 999)  # Keep numbers in plain decimal form for this section
+
+# 10^0, 10^1, ..., 10^6 and their natural logs
+x <- map_dbl(1:7, ~10^(.x - 1))
+table <- tibble(x = x, log_x = log(x))
+table
+```
+
+**Key property:** the log of a product is the sum of the logs, $\log(A \cdot B) = \log(A) + \log(B)$.
+
+```{r}
+log(1000*10000)                        # log of the product
+log(1000)+log(10000)                   # sum of the logs
+log(1000*10000)==log(1000)+log(10000)  # exactly equal here (both are "nice" numbers)
+```
+
+`exp()` is the inverse of the natural log. `exp(1)` gives Euler's number, $e$.
+
+```{r}
+a <- log(10*100)
+a
+exp(a)      # exp() undoes log()
+exp(1)      # e^1 = e
+log(exp(1)) # log() undoes exp() — back to 1
+```
+
+::: callout-tip
+## Predict first
+
+Before running the next chunk: what should $\log(x)$ look like as $x \to 0$ from the right? What about as $x$ gets very large — does it keep climbing at the same rate?
+:::
+
+```{r}
+curve(log(x), from = 0, to = 100, main = "Natural logarithm")
+curve(log(x), from = 0, to = 1000000, main = "Natural logarithm (wider range)")
+```
+
+**Defining a custom function:**
+
+```{r}
+f <- function(x) { log(x) }
+f       # display the function definition
+f(100)
+log(100)  # same thing, called two different ways
+```
+
+### A.1.5–A.1.6 Decimals, Percentages, and Logs
+
+For small changes, `100 * diff(log(y))` is a good approximation of the percentage change in `y` — this is the fact behind every "a one-unit increase in log(x) is roughly a b% change in y" sentence you'll read for the rest of the course, so it's worth seeing it work (and later, seeing it break down).
+
+```{r}
+y <- c(3, 3.02)
+y
+
+diff(y)             # absolute change
+diff(y)/y[1]        # relative change
+100*diff(y)/y[1]    # percentage change
+
+lny <- log(y)
+100*diff(lny)       # log-difference approximation to the percentage change
+```
+
+Both numbers are close (about 0.667% either way) because the change is small. Now let's see how the approximation error grows as the change gets bigger — this table answers the question "how small does 'small' need to be?"
+
+```{r}
+y <- seq(1, 1.25, 0.05)
+y <- c(1, y[1]+0.01, y[-1])
+y
+
+percent    <- 100*(y-y[1])/y[1]           # exact percentage change
+logdiff    <- 100*(log(y)-log(y[1]))      # log-difference approximation
+approx.error <- 100*((percent-logdiff)/logdiff)
+
+table <- cbind(y, percent, logdiff, approx.error)
+table
+table[-1, ]  # drop the first (trivial, zero-change) row
+```
+
+::: callout-important
+Notice the approximation error grows as the change in `y` gets larger. In your own regressions, when you interpret a semi-log or log-log coefficient as "approximately a b% effect," that approximation is only good for small effects — for a coefficient near, say, 0.3 or larger, the exact percentage change is $100(e^b - 1)$, not $100b$. Keep this in your back pocket; it comes up again this semester.
+:::
+
+## A.2 Linear Relationships
+
+Clear the workspace before moving to a new topic.
+
+```{r}
+rm(list=ls())
+```
+
+### A.2.1 Slopes and Derivatives
+
+```{r}
+f <- function(x) { 1+1*x }
+f(0)   # the intercept: value of f at x = 0
+```
+
+Slope (rise over run) between two points:
+
+```{r}
+x1 <- 2
+x2 <- 4
+
+m    <- (f(x2) - f(x1)) / (x2 - x1)
+rise <- f(x2) - f(x1)
+run  <- x2 - x1
+
+print(paste("Slope:", m))
+print(paste("Rise:", rise))
+print(paste("Run:", run))
+```
+
+```{r}
+#| fig-width: 6
+#| fig-height: 6
+ggplot(data.frame(x = c(-3, 10)), aes(x)) +
+  stat_function(fun = f, geom = "line") +
+  geom_vline(aes(xintercept = 0), color = "red") +
+  geom_hline(aes(yintercept = 0), color = "red") +
+  geom_point(aes(x = x1, y = f(x1)), color = "blue", size = 3) +
+  geom_point(aes(x = x2, y = f(x2)), color = "green", size = 3) +
+  labs(title = "A linear relationship", x = "x", y = "y") +
+  coord_fixed(ratio = 1) +
+  theme_minimal()
+```
+
+R's `D()` function does this symbolically — this is Equation A.7 in the book, $dy/dx = m$:
+
+```{r}
+D(expression(1+1*x), "x")
+```
+
+**Checking the book's own worked example.** The text works through, by hand, the linear function $y = 1x+1$ at the point $(x=2, y=3)$: a 1% change in $x$ ($\Delta x = 0.02$) produces roughly a 0.67% change in $y$. Let's reproduce that exactly:
+
+```{r}
+f2 <- function(x) { 1+1*x }
+x0 <- 2
+y0 <- f2(x0)                  # should be 3
+x_new <- x0 * 1.01            # a 1% increase in x
+y_new <- f2(x_new)
+pct_change_y <- 100*(y_new - y0)/y0
+pct_change_y                  # should match the book's 0.67%
+```
+
+### A.2.2 Elasticity
+
+Elasticity is slope $\times\ (x/y)$ — the percentage change in $y$ for a 1% change in $x$, at a specific point. Unlike the slope, it is **not constant** along a straight line, even though the line's slope is.
+
+```{r}
+f <- function(x) { 1+2*x }
+elasticity <- function(x) { 2*x/f(x) }
+elasticity(1)
+
+ggplot(data.frame(x = c(0.1, 10)), aes(x)) +
+  stat_function(fun = elasticity, geom = "line") +
+  geom_vline(aes(xintercept = 1), color = "red") +
+  geom_hline(aes(yintercept = elasticity(1)), color = "blue") +
+  labs(title = "Elasticity of y = 1 + 2x at x=1", x = "x", y = "Elasticity") +
+  theme_minimal()
+```
+
+## A.3 Nonlinear Relationships
+
+```{r}
+rm(list=ls())
+```
+
+### A.3.1 Rules for Derivatives
+
+```{r}
+D(expression(c), "x")            # Rule 1: derivative of a constant is 0
+D(expression(x^n), "x")          # Rule 2: power rule
+D(expression(c*x^n), "x")        # Rule 4: constant times a power function
+D(expression(x^2 + 3*x + 2), "x")# Rule 5: sum rule — differentiate term by term
+D(expression(exp(x)), "x")       # Rule 7
+D(expression(exp(a*x+b)), "x")   # Rule 7, chain rule version
+D(expression(log(x)), "x")       # Rule 8
+D(expression(log(a*x+b)), "x")   # Rule 8, chain rule version
+```
+
+### Example A.1
+
+Differentiate $4x+1$:
+
+```{r}
+D(expression(4*x+1), "x")
+```
+
+### Example A.2
+
+Plot and differentiate the quadratic $y = x^2-8x+16$:
+
+::: callout-tip
+## Predict first
+
+Given the shape of a quadratic with a positive leading coefficient, does this function have a maximum or a minimum? Roughly where, just by looking at the curve?
+:::
+
+```{r}
+curve(x^2-8*x+16, from=-1, to=10, main="Quadratic function: x^2 - 8x + 16")
+D(expression(x^2-8*x+16), "x")
+```
+
+### A.3.3 Second Derivatives — and A.3.4 Maxima and Minima
+
+*(New material — not in the original script, but this is the exact technique the live lecture reuses on the wage equation, so it's worth seeing here first on a simple function.)*
+
+The book's Examples A.4–A.6 work through this by hand for $y=4x+1$ and $y=x^2-8x+16$. Let's do it programmatically with `D()`, so you can trust the algebra even when the function gets messier than a wage equation with six terms.
+
+```{r}
+# Example A.4: linear function has a constant slope, so its
+# second derivative is zero -- no maximum or minimum to find.
+f_expr <- expression(4*x+1)
+dy_expr  <- D(f_expr, "x")
+d2y_expr <- D(dy_expr, "x")
+dy_expr    # first derivative: 4
+d2y_expr   # second derivative: 0
+```
+
+```{r}
+# Example A.5 / A.6: the quadratic x^2 - 8x + 16
+f_expr   <- expression(x^2 - 8*x + 16)
+dy_expr  <- D(f_expr, "x")     # first derivative, as an R expression
+d2y_expr <- D(dy_expr, "x")    # second derivative
+dy_expr
+d2y_expr
+```
+
+Turn the first-derivative expression into a callable function, and solve for where it equals zero — the candidate maximum or minimum:
+
+```{r}
+dy <- function(x) eval(dy_expr)
+
+critical_point <- uniroot(dy, interval = c(-10, 10))$root
+critical_point   # should match the book's x = 4
+```
+
+Check the second-order condition to classify it:
+
+```{r}
+d2y <- function(x) eval(d2y_expr)
+d2y(critical_point)  # positive -> local MINIMUM (matches the book's conclusion)
+```
+
+```{r}
+f <- function(x) x^2 - 8*x + 16
+curve(f(x), from = -1, to = 10, main = "x^2 - 8x + 16, with its minimum marked")
+points(critical_point, f(critical_point), col = "firebrick", pch = 19, cex = 1.3)
+```
+
+This is precisely the pattern we'll run live on the wage equation: get the first derivative, solve for where it's zero, then check the sign of the second derivative before trusting the answer.
+
+**The log function's slope and elasticity:**
+
+```{r}
+D(expression(log(x)), "x")   # derivative of log(x) is 1/x
+
+d <- function(x) { 1/x }
+x <- 1:50
+d(x)
+plot(x, d(x), type="l", main="The derivative of the log function")
+```
+
+Elasticity of $\log(x)$: slope $\times\ (x/y) = (1/x)\times(x/\log(x)) = 1/\log(x)$.
+
+```{r}
+e <- function(x) { (1/x)*(x/log(x)) }
+plot(x, e(x), type="l", main="The elasticity of the log function")
+e(2)
+e(10)
+```
+
+**Example A.2 continued — elasticity of the quadratic:**
+
+```{r}
+rm(list=ls())
+curve(x^2-8*x+16, from=-1, to=10, main="The quadratic function x^2 - 8x + 16")
+D(expression(x^2-8*x+16), "x")
+
+f  <- function(x) { x^2-8*x+16 }
+dy <- function(x) { (2*x-8) }
+e  <- function(x) { (2*x-8)*(x/f(x)) }
+
+x <- seq(0,4,2)
+f(x)
+dy(x)
+e(x)
+
+cbind(x, f(x), dy(x), e(x))
+curve(e(x), 0, 3.9, main="The elasticity of the quadratic function x^2 - 8x + 16")
+```
+
+Notice `dy(4)` is 0 — that's the same minimum we located above with `uniroot()`, just eyeballed from the table this time.
+
+### A.3.5 Partial Derivatives
+
+When $y=f(x,z)$ depends on two variables, there's a slope "in two directions" — one holding $z$ fixed, one holding $x$ fixed.
+
+```{r}
+# Partial derivative with respect to x, holding z fixed
+D(expression(a*x^2+b*x+c*z+d), "x")
+
+# Partial derivative with respect to z, holding x fixed
+D(expression(a*x^2+b*x+c*z+d), "z")
+```
+
+Both terms not involving the variable you're differentiating with respect to drop out (Derivative Rule 1) — that's why the $x$-partial has no $z$ in it, and the $z$-partial is just the constant $c$. This is the exact idea behind reading off a coefficient on an interaction term in a regression: "holding the other variable fixed" is doing real mathematical work, not just a figure of speech.
+
+### A.4 Integrals
+
+*(Not covered this semester — included below for completeness only, in case you want it for another course. `eval: false` means this chunk is shown but not run.)*
+
+```{r}
+#| eval: false
+curve(2*x,0,1)
+integrand <- function(x) { 2*x }
+integrate(integrand, lower = 0, upper = 1)
+integrate(integrand, lower = 0.2, upper = 0.6)
+0.6^2-0.2^2
+
+cord.x <- c(0.2)
+cord.y <- c(0)
+cord.x <- c(cord.x,0.2)
+cord.y <- c(cord.y,integrand(0.2))
+cord.x <- c(cord.x,0.6,0.6)
+cord.y <- c(cord.y,integrand(0.6),0)
+
+curve(2*x,0,1)
+polygon(cord.x,cord.y,col='aquamarine3')
+
+num <- integrate(integrand, lower = 0.2, upper = 0.6) ; num
+str(num)
+text(0.4, 0.4, paste(num$value))
+```
+
+## A.5 Exercises
+
+```{r}
+rm(list=ls())
+library(mosaic)
+```
+
+### Two ways to define and plot a function in R
+
+Before tackling the assigned exercises, here's the same simple function defined two ways — with the `mosaic` package's `makeFun()`/`plotFun()`, and with base R's `function()`/`curve()`. Use whichever you find more readable; they do the same thing.
+
+**Using `mosaic`:**
+
+```{r}
+f <- makeFun(2+3*x ~ x)
+f(0)
+f(2)
+plotFun(f(x) ~ x, xlim=c(0,4), ylim=c(0,14), main="The linear function 2+3*x")
+D(expression(2+3*x),"x")
+
+e <- makeFun(3*x/f(x) ~ x)
+plotFun(e(x) ~ x, xlim=c(0,4), col="brown", main="The elasticity of the linear function 2+3*x")
+e(1)
+```
+
+**Using base R:**
+
+```{r}
+g <- function(x) {2+3*x}
+g(0)
+g(2)
+curve(g(x), 0, 4, col="red", main="The linear function 2+3*x")
+
+h <- function(x) {3*x/g(x)}
+curve(h(x), 0, 4, col="green", main="The elasticity of the linear function 2+3*x")
+h(1)
+```
+
+```{r}
+rm(list=ls())
+```
+
+### Exercise A.1
+
+Three supply/demand relations, each with a specific point to evaluate:
+
+1.  $Q=-3+2P$ at $P=10$
+2.  $Q=100-20P$ at $P=4$
+3.  $Q=50P^{-2}$ at $P=2$
+
+For each: **(a)** find the slope at the given point, **(b)** interpret it and say whether slope/elasticity change with $P$, **(c)** find the elasticity at the given point, **(d)** interpret it.
+
+**(1)** $Q=-3+2P$
+
+```{r}
+Q1 <- makeFun(-3 + 2*P ~ P)
+plotFun(Q1(P)~P, xlim = c(0,12), main="Q1 = -3 + 2P")
+
+D(expression(-3 + 2*P), "P")   # slope is constant: 2
+d1 <- function(P) {2}
+e1 <- function(P) {2 * P/Q1(P)}
+
+plotFun(e1(P) ~ P, xlim = c(2,12), main="Elasticity of Q1 = -3 + 2P")
+
+# --- Answer at the assigned point, P = 10 ---
+cat("At P = 10:  Q =", Q1(10), " slope =", d1(10), " elasticity =", e1(10), "\n")
+```
+
+The slope is constant (2) at every price — a straight line. The elasticity is *not* constant: it changes with $P$ even though the slope doesn't, because elasticity also depends on the ratio $P/Q$.
+
+**(2)** $Q=100-20P$
+
+```{r}
+Q2 <- makeFun(100 -20*P ~ P)
+plotFun(Q2(P)~P, xlim = c(0,12), main="Q2 = 100 - 20P")
+
+D(expression(100 -20*P), "P")  # slope is constant: -20
+d2 <- function(P) {-20}
+e2 <- function(P) {-20 * P/Q2(P)}
+
+plotFun(e2(P) ~ P, xlim = c(0,4), main="Elasticity of Q2 = 100 - 20P")
+
+# --- Answer at the assigned point, P = 4 ---
+cat("At P = 4:  Q =", Q2(4), " slope =", d2(4), " elasticity =", e2(4), "\n")
+```
+
+**(3)** $Q=50P^{-2}$
+
+This time, rather than re-typing the derivative by hand, let R's `D()` compute it and turn the result directly into a function — one fewer place to make an algebra slip:
+
+```{r}
+Q3 <- function(P) {50*(P^(-2))}
+
+Q3_expr <- expression(50*P^-2)
+dQ3_expr <- D(Q3_expr, "P")
+dQ3_expr           # the symbolic derivative R computed for you
+
+d3 <- function(P) eval(dQ3_expr)
+
+P_values_q3 <- seq(0.1, 5, by = 0.1)
+df_q3 <- data.frame(P = P_values_q3, Quantity = sapply(P_values_q3, Q3))
+ggplot(df_q3, aes(x = P, y = Quantity)) +
+  geom_line() + ggtitle("Q3 as a function of P") + xlab("P") + ylab("Quantity")
+
+e3 <- function(P) { d3(P) * P/Q3(P) }
+
+P_values_e3 <- seq(0.1, 1, by = 0.01)
+df_e3 <- data.frame(P = P_values_e3, Elasticity = sapply(P_values_e3, e3))
+ggplot(df_e3, aes(x = P, y = Elasticity)) +
+  geom_line() + ggtitle("Elasticity as a function of P") + xlab("P") + ylab("Elasticity")
+
+# --- Answer at the assigned point, P = 2 ---
+cat("At P = 2:  Q =", Q3(2), " slope =", d3(2), " elasticity =", e3(2), "\n")
+```
+
+Notice the elasticity is exactly $-2$ everywhere for this function — a constant-elasticity (power) function always has elasticity equal to its exponent, no matter the point. Compare that to relations (1) and (2) above, where the elasticity moved with $P$. This same fact is why a log-log regression coefficient can be read directly as an elasticity: it's constant by construction.
+
+### Exercise A.2
+
+Three candidate relationships between infant mortality and income, evaluated at INCOME = 1, 3, and 25:
+
+1.  $\ln(\text{MORTALITY}) = 7.5 - 0.5\ln(\text{INCOME})$ (log-log)
+2.  $\text{MORTALITY} = 1400 - 100\,\text{INCOME} + 1.67\,\text{INCOME}^2$ (quadratic)
+3.  $\text{MORTALITY} = 1500 - 50\,\text{INCOME}$ (linear)
+
+::: callout-tip
+## Predict first
+
+Relationship 1 is a log-log model. Based on what you just saw in Exercise A.1(3), what do you expect its elasticity to do as INCOME changes — stay constant, or move around?
+:::
+
+```{r}
+# Relationship 1: log-log -> convert back to levels
+f1_expr <- expression(exp(7.5)*INCOME^-0.5)
+f1 <- makeFun(exp(7.5)*INCOME^-0.5 ~ INCOME)
+df1_expr <- D(f1_expr, "INCOME")
+d1 <- function(INCOME) eval(df1_expr)
+e1 <- function(INCOME) { d1(INCOME) * INCOME / f1(INCOME) }
+
+# Relationship 2: quadratic
+f2_expr <- expression(1400 - 100*INCOME + 1.67*INCOME^2)
+f2 <- makeFun(1400 - 100*INCOME + 1.67*INCOME^2 ~ INCOME)
+df2_expr <- D(f2_expr, "INCOME")
+d2 <- function(INCOME) eval(df2_expr)
+e2 <- function(INCOME) { d2(INCOME) * INCOME / f2(INCOME) }
+
+# Relationship 3: linear
+f3_expr <- expression(1500 - 50*INCOME)
+f3 <- makeFun(1500 - 50*INCOME ~ INCOME)
+df3_expr <- D(f3_expr, "INCOME")
+d3 <- function(INCOME) eval(df3_expr)
+e3 <- function(INCOME) { d3(INCOME) * INCOME / f3(INCOME) }
+
+plotFun(f1(INCOME) ~ INCOME, xlim = c(0,30), main="Relationship 1: log-log")
+plotFun(f2(INCOME) ~ INCOME, xlim = c(0,30), main="Relationship 2: quadratic")
+plotFun(f3(INCOME) ~ INCOME, xlim = c(0,30), main="Relationship 3: linear")
+```
+
+```{r}
+incomes <- c(1, 3, 25)
+
+results <- tibble(
+  INCOME       = incomes,
+  MORTALITY_1  = f1(incomes),  elasticity_1 = e1(incomes),
+  MORTALITY_2  = f2(incomes),  elasticity_2 = e2(incomes),
+  MORTALITY_3  = f3(incomes),  elasticity_3 = e3(incomes)
+)
+results
+```
+
+::: callout-important
+Two things worth noticing in that table before you move on:
+
+1.  **Elasticity 1 is exactly** $-0.5$ at every income level — the log-log model has constant elasticity by construction, same as Exercise A.1(3). Elasticities 2 and 3 both change with INCOME.
+2.  **Relationship 2 predicts a *negative* mortality rate at INCOME = 25** (check `MORTALITY_2` in the table). A quadratic that fits well over a limited range can produce nonsensical predictions outside it — infant mortality can't be negative. This is a real, general danger of quadratic functional forms used for extrapolation, and it's exactly the kind of thing worth checking rather than trusting the first number your model (or an LLM) hands you.
+:::
