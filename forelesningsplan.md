@@ -30,5 +30,7 @@
 |  2 | 18/08  | Appendix A: [Mathematical Tools in R](https://uit-sok-3081-h26.github.io/lecture-01.html)   |
 |    |        | [R file](https://raw.githubusercontent.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/refs/heads/main/lecture-01.R)      |
 |    |        | [Annotated Quarto file for Appendix A](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/Apdx_A_annotated_v2.qmd)   |
-| 3  | 19/08    | Appendix B: Probability Concepts   |
+| 3  | 19/08    | Appendix B: [Probability Concepts](https://uit-sok-3081-h26.github.io/lecture-02.html)   |
+|    |      |    [R file](https://raw.githubusercontent.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/refs/heads/main/lecture-02.R)           |
+|    |        | [Annotated Quarto file for Appendix B](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/Apdx_B_annotated.qmd)   |
 | 4 | 20/08    |  Appendix C: Review of Statistical Inference     |
