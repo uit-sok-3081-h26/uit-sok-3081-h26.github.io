@@ -33,7 +33,8 @@
 | 3  | 19/08    | Appendix B: [Probability Concepts](https://uit-sok-3081-h26.github.io/lecture-02.html)   |
 |    |      |    [R file](https://raw.githubusercontent.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/refs/heads/main/lecture-02.R)           |
 |    |        | [Annotated Quarto file for Appendix B](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/Apdx_B_annotated.qmd)   |
-| 4 | 20/08    |  Appendix C: Review of Statistical Inference - Part 1     |
+| 4 | 20/08    |  Appendix C: [Review of Statistical Inference - Part 1](https://uit-sok-3081-h26.github.io/lecture-03.html)     |
+|    |      |    [R file](https://raw.githubusercontent.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/refs/heads/main/lecture-03.R)           |
 | 5 | 31/08    |  Appendix C: Review of Statistical Inference - Part 2    |
 | 6 |  01/09   | Live R coding seminar        |
 
