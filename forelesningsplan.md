@@ -39,6 +39,8 @@
 |    |       |  [My scribbling notes on the html file](https://uit-sok-3081-h26.github.io/Lecture%2002_%20Probability%20for%20Econometrics%20(Appendix%20B)%20scribling.pdf) |
 | 4 | 20/08    |  Appendix C: [Review of Statistical Inference - Part 1](https://uit-sok-3081-h26.github.io/lecture-03.html)     |
 |    |      |    [R file](https://raw.githubusercontent.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/refs/heads/main/lecture-03.R)           |
+|    |       |  [My scribbling notes](https://uit-sok-3081-h26.github.io/Notat%2020.%20aug.%202026.pdf) |
+|    |       |  [Handout: Why We Use the Sample Mean](https://uit-sok-3081-h26.github.io/mean_as_minimum_variance_estimator.pdf) |
 | 5 | 31/08    |  Appendix C: [Review of Statistical Inference - Part 2](https://uit-sok-3081-h26.github.io/lecture-04.html)    |
 |    |      |    [R file](https://raw.githubusercontent.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/refs/heads/main/lecture-04.R)           |
 |    |        | [Annotated Quarto file for Appendix C](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/Appendix_C_annotated.qmd)   |
