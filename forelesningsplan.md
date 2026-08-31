@@ -46,5 +46,5 @@
 |    |        | [Annotated Quarto file for Appendix C](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/Appendix_C_annotated.qmd)   |
 |    |        |  [Self study on p-values](https://uit-sok-3081-h26.github.io/p-values-self-study.html) |
 | 6 |  01/09   | [Live R coding seminar](https://raw.githubusercontent.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/refs/heads/main/econometrics_llm_lab_tasks.R)    |
-| Exercise 1  | Deadline    |   [Obligatory Exercise 1](https://uit-sok-3081-h26.github.io/SOK-3081_Turkish_lira_inflation_html.html)      |
+| Exercise 1  | Deadline 16/09   |   [Obligatory Exercise 1](https://uit-sok-3081-h26.github.io/SOK-3081_Turkish_lira_inflation_html.html)      |
 |  |    |    |
