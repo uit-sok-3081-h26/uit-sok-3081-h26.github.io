@@ -48,5 +48,14 @@
 |    |        |  [Self study on p-values](https://uit-sok-3081-h26.github.io/p-values-self-study.html) |
 | 6 |  01/09   | [Live R coding seminar](https://raw.githubusercontent.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/refs/heads/main/econometrics_llm_lab_tasks.R)    |
 |    |       |  [My scribbling notes](https://uit-sok-3081-h26.github.io/Notat%201.%20sep.%202026.pdf) |
+| 7 | 03/09   | Chapter 2   |
+| 8 | 09/09   | Chapter 3   |
+| 9 | 11/09   | Chapter 4   |
+| 10 | 14/09  | Chapter 5    |
+| 11 | 14/09   | Seminar   |
+| 12 | 18/09   | Chapter 6   |
+| 13 | 22/09   | Chapter 7   |
+| 14 | 25/09   | Chapter 8   |
+| 15 | 30/09   | Seminar  |
 | Exercise 1  | Deadline 16/09   |   [Obligatory Exercise 1](https://uit-sok-3081-h26.github.io/SOK-3081_Turkish_lira_inflation_html.html)      |
 |  |    |    |
