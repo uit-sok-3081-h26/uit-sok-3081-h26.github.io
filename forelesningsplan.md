@@ -53,7 +53,7 @@
 | 9 | 11/09   | Chapter 4   |
 | 10 | 14/09  | Chapter 5    |
 | 11 | 14/09   | Seminar   |
-| Exercise 1  | Deadline 16/09   |   [Obligatory Exercise 1](https://uit-sok-3081-h26.github.io/SOK-3081_Turkish_lira_inflation_html.html)      |
+| Exercise 1  | Deadline 16/09   |   [Obligatory Exercise 1](https://uit-sok-3081-h26.github.io/SOK-3081_Turkish_lira_inflation_html.html). Submit your paper as a pdf in Canvas.    |
 | 12 | 18/09   | Chapter 6   |
 | 13 | 22/09   | Chapter 7   |
 | 14 | 25/09   | Chapter 8   |
