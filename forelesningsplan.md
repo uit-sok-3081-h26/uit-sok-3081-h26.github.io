@@ -48,9 +48,9 @@
 |    |        |  [Self study on p-values](https://uit-sok-3081-h26.github.io/p-values-self-study.html) |
 | 6 |  01/09   | [Live R coding seminar](https://raw.githubusercontent.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/refs/heads/main/econometrics_llm_lab_tasks.R)    |
 |    |       |  [My scribbling notes](https://uit-sok-3081-h26.github.io/Notat%201.%20sep.%202026.pdf) |
-| 8 | 09/09   | Chapter 2 part 1 [Lecture PDF]() |
-|    |         | [Lecture Powerpoint]() |
-|    |         | [R kode]() |
+| 8 | 09/09   | Chapter 2 part 1 [Lecture PDF](lectures/S08_ch02_simple_linear_regression.pdf) |
+|    |         | [Lecture Powerpoint](lectures/S08_ch02_simple_linear_regression.pptx) |
+|    |         | [R kode](lectures/S08_ch02_simple_linear_regression.R) |
 | 9 | 11/09   | Chapter 2 part 2  [Lecture PDF](lectures/S09_ch02_simple_linear_regression.pdf) |
 |    |         | [Lecture Powerpoint](lectures/S09_ch02_simple_linear_regression.pptx) |
 |    |         | [R kode](lectures/S09_ch02_simple_linear_regression.R) |
