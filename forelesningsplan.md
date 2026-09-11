@@ -48,17 +48,26 @@
 |    |        |  [Self study on p-values](https://uit-sok-3081-h26.github.io/p-values-self-study.html) |
 | 6 |  01/09   | [Live R coding seminar](https://raw.githubusercontent.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/refs/heads/main/econometrics_llm_lab_tasks.R)    |
 |    |       |  [My scribbling notes](https://uit-sok-3081-h26.github.io/Notat%201.%20sep.%202026.pdf) |
-| 8 | 09/09   | Chapter 2 part 1 [Lecture PDF](lectures/S08_ch02_simple_linear_regression.pdf) [Lecture PDF with notes](lectures/S08_ch02_simple_linear_regression_annotated.pdf) |
-|    |         | [Lecture Powerpoint](lectures/S08_ch02_simple_linear_regression.pptx) |
+| 8 | 09/09   | Chapter 2 part 1 [Lecture PDF](lectures/S08_ch02_simple_linear_regression.pdf) [Lecture PDF with notes](lectures/S08_ch02_simple_linear_regression_annotated.pdf) [Lecture Powerpoint](lectures/S08_ch02_simple_linear_regression.pptx) |
 |    |         | [R kode](lectures/S08_ch02_simple_linear_regression.R) |
-| 9 | 11/09   | Chapter 2 part 2  [Lecture PDF](lectures/S09_ch02_simple_linear_regression.pdf)  [Lecture PDF with notes](lectures/S09_ch02_simple_linear_regression_annotated.pdf |
+|  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=8cafa645-c30b-465a-a992-aee500c4723a)     |
+| 9 | 11/09   | Chapter 2 part 2  [Lecture PDF](lectures/S09_ch02_simple_linear_regression.pdf)  [Lecture PDF with notes](lectures/S09_ch02_simple_linear_regression_annotated.pdf) |
 |    |         | [Lecture Powerpoint](lectures/S09_ch02_simple_linear_regression.pptx) |
 |    |         | [R kode](lectures/S09_ch02_simple_linear_regression.R) |
-| 10 | 14/09  | Chapter 5    |
-| 11 | 14/09   | Seminar   |
+|  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=fe2607de-2c56-492f-87bd-aee500c57671)     |
 | Exercise 1  | Deadline 16/09   |   [Obligatory Exercise 1](https://uit-sok-3081-h26.github.io/SOK-3081_Turkish_lira_inflation_html.html). Submit your paper as a pdf in Canvas.    |
-| 12 | 18/09   | Chapter 6   |
-| 13 | 22/09   | Chapter 7   |
-| 14 | 25/09   | Chapter 8   |
-| 15 | 30/09   | Seminar  |
+| 10 | 18/09   | Chapter 3   |
+|  |    | ["Old" video (Part 1)](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=e319d74e-c548-4de3-b6f5-aee500c4d176)   ["Old" video (Part 2)](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=4d290fdc-36ae-4d2d-8495-aee500c57827) |
+| 11 | 22/09   | Chapter 4   |
+|  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=befb571c-77a5-4919-b3e5-aee500c4b463)    |
+| 12 | 22/09   | Seminar  |
+| 13 | 25/09   | Chapter 5  |
+|  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=d3c5a562-fdf8-48f6-9b49-aee500c5236b)     |
+| 14 | 28/09   | Chapter 6 |
+|  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=f7414982-3db6-4bb2-925b-aee500c49725)    |
+| 15 | 30/09   | Chapter 7  |
+|  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=0cc6111f-0182-4bee-aa59-aee500c5110b)    |
+| 16 | 01/10   | Chapter 8  |
+|  |    |    |
+| 17 | 02/20   | Seminar  |
 |  |    |    |
