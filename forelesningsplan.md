@@ -68,6 +68,11 @@
 | 15 | 30/09   | Chapter 7  |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=0cc6111f-0182-4bee-aa59-aee500c5110b)    |
 | 16 | 01/10   | Chapter 8  |
-|  |    |    |
 | 17 | 02/20   | Seminar  |
+|  | 13/10   |    |
+|  | 15/10   |    |
+|  | 22/10   |    |
+|  | 29/10   |    |
+|  | 03/11   |    |
+|  | 12/11   |    |
 |  |    |    |
