@@ -67,7 +67,7 @@
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=f7414982-3db6-4bb2-925b-aee500c49725)    |
 | 15 | 01/10  | Chapter 7  |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=0cc6111f-0182-4bee-aa59-aee500c5110b)    |
-| 16 |  02/20 | Chapter 8  |
+| 16 |  02/10 | Chapter 8  |
 | 17  | 13/10   |    |
 |  | 15/10   |    |
 |  | 22/10   |    |
