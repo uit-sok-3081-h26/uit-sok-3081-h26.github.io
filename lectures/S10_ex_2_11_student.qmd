@@ -1,0 +1,827 @@
+---
+title: "Chapter 2 Seminar: Simple Linear Regression"
+subtitle: "Student version"
+format:
+  pdf:
+    toc: true
+    number-sections: false
+    papersize: a4
+    geometry:
+      - margin=2.5cm
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+```{r}
+#| include: false
+options(scipen = 10)
+options(digits = 6)
+library(tidyverse)
+library(gt)
+```
+
+# Exercise 2.1
+
+This exercise uses a very small dataset so that the main calculations behind ordinary least squares (OLS) can be followed by hand.
+
+Parts **(a)–(j)** follow the structure of the original textbook exercise. Parts **(k)–(p)** are extensions used in the seminar to connect the calculations to OLS properties, variation, assumptions, R output, and extrapolation.
+
+Each part is followed immediately by space for your own solution.
+
+The five observations are:
+
+```{r}
+exercise_data <- tibble(
+  x = c(-1, 0, 1, 2, 3),
+  y = c(1, 0, 3, 2, 4)
+)
+
+exercise_data |>
+  gt() |>
+  fmt_number(decimals = 0)
+```
+
+## 2.1(a) Sample means and deviations from the means
+
+Calculate the sample means $\bar{x}$ and $\bar{y}$.
+
+Then complete the table below. For each observation, calculate the deviation of $x_i$ from its mean, $x_i-\bar{x}$, and the deviation of $y_i$ from its mean, $y_i-\bar{y}$. Also calculate the squared deviations and the cross-product of the two deviations.
+
+| $x_i$ | $y_i$ | $x_i-\bar{x}$ | $(x_i-\bar{x})^2$ | $y_i-\bar{y}$ | $(y_i-\bar{y})^2$ | $(x_i-\bar{x})(y_i-\bar{y})$ |
+|----:|----:|-------:|-------:|--------:|---------:|----------:|
+| -1 | 1 |  |  |  |  |  |
+| 0 | 0 |  |  |  |  |  |
+| 1 | 3 |  |  |  |  |  |
+| 2 | 2 |  |  |  |  |  |
+| 3 | 4 |  |  |  |  |  |
+| **Sum** |  |  |  |  |  |  |
+
+Use the completed table to calculate the sums needed later in the exercise.
+
+Also consider the following:
+
+1.  What does a positive or negative value of $x_i-\bar{x}$ mean?
+2.  What does a positive or negative value of $y_i-\bar{y}$ mean?
+3.  What do you notice about $\sum(x_i-\bar{x})$ and $\sum(y_i-\bar{y})$?
+4.  Plot the observations and show $\bar{x}$ and $\bar{y}$ on the graph.
+
+**Your solution**
+
+```{=latex}
+\vspace*{6cm}
+```
+
+## 2.1(b) Estimate the regression line
+
+Use the OLS slope formula
+
+$$
+b_2=
+\frac{\sum_{i=1}^{N}(x_i-\bar{x})(y_i-\bar{y})}
+{\sum_{i=1}^{N}(x_i-\bar{x})^2}
+$$
+
+to calculate $b_2$. Then calculate the intercept from $b_1=\bar{y}-b_2\bar{x}$.
+
+Write the fitted regression line as $\hat{y}_i=b_1+b_2x_i$ and interpret both $b_1$ and $b_2$.
+
+**Your solution**
+
+```{=latex}
+\vspace*{6cm}
+```
+
+## 2.1(c) Alternative formulas for the OLS sums
+
+Calculate $\sum x_i^2$ and $\sum x_i y_i$.
+
+Use these values to verify the two equivalent formulas
+
+$$
+\sum_{i=1}^{N}(x_i-\bar{x})^2
+=
+\sum_{i=1}^{N}x_i^2-N\bar{x}^2
+$$
+
+and
+
+$$
+\sum_{i=1}^{N}(x_i-\bar{x})(y_i-\bar{y})
+=
+\sum_{i=1}^{N}x_i y_i-N\bar{x}\bar{y}.
+$$
+
+The point of this part is to see that the same quantities can be calculated either from deviations around the means or from raw sums.
+
+**Your solution**
+
+```{=latex}
+\vspace*{6cm}
+```
+
+## 2.1(d) Fitted values, residuals, and descriptive statistics
+
+For each observation, calculate the fitted value $\hat{y}_i=b_1+b_2x_i$ and the residual $\hat{e}_i=y_i-\hat{y}_i$.
+
+Complete the table:
+
+|   $x_i$ | $y_i$ | $\hat{y}_i$ | $\hat{e}_i$ | $\hat{e}_i^2$ | $x_i\hat{e}_i$ |
+|----:|----:|------------:|------------:|--------------:|---------------:|
+|      -1 |     1 |             |             |               |                |
+|       0 |     0 |             |             |               |                |
+|       1 |     3 |             |             |               |                |
+|       2 |     2 |             |             |               |                |
+|       3 |     4 |             |             |               |                |
+| **Sum** |       |             |             |               |                |
+
+Then calculate the following by hand. The formulas are included here so that you can see exactly what each quantity measures.
+
+- **Sample variance of** $x$: measures how spread out the observed $x$-values are around $\bar{x}$, $s_x^2=\frac{\sum_{i=1}^{N}(x_i-\bar{x})^2}{N-1}$.
+
+- **Sample variance of** $y$: measures how spread out the observed $y$-values are around $\bar{y}$, $s_y^2=\frac{\sum_{i=1}^{N}(y_i-\bar{y})^2}{N-1}$.
+
+- **Sample covariance between** $x$ and $y$: measures whether $x$ and $y$ tend to be above or below their means together, $s_{xy}=\frac{\sum_{i=1}^{N}(x_i-\bar{x})(y_i-\bar{y})}{N-1}$.
+
+- **Sample correlation:** standardizes the covariance so that the result lies between $-1$ and $1$, $r_{xy}=\frac{s_{xy}}{s_xs_y}$.
+
+- **Coefficient of variation of** $x$: compares the standard deviation of $x$ with its mean, $CV_x=100\frac{s_x}{\bar{x}}$.
+
+- **Median of** $x$: the middle observation after the $x$-values have been sorted.
+
+For each quantity, report the numerical result and briefly explain what it measures. After the manual calculations, use `var()`, `cov()`, `cor()`, and `median()` in R to verify the results.
+
+**Your solution**
+
+```{=latex}
+\vspace*{6cm}
+```
+
+## 2.1(e) Plot the data, fitted values, and residuals
+
+Plot the original observations and the fitted regression line.
+
+On the same graph:
+
+- show the fitted value $\hat{y}_i$ for each observation,
+- show the residual $\hat{e}_i$ as the vertical distance between $y_i$ and $\hat{y}_i$.
+
+Use the graph to explain the difference between an observed value, a fitted value, and a residual.
+
+**Your solution**
+
+```{=latex}
+\vspace*{10cm}
+```
+
+## 2.1(f) The point of sample means
+
+On the graph from part (e), locate the point
+
+$$
+(\bar{x},\bar{y}).
+$$
+
+Does the fitted regression line pass through this point?
+
+Explain what you observe.
+
+**Your solution**
+
+```{=latex}
+\vspace*{4cm}
+```
+
+## 2.1(g) Verify the mean-point property algebraically
+
+Using the numerical values from this dataset, verify that
+
+$$
+\bar{y}=b_1+b_2\bar{x}.
+$$
+
+Explain why this result follows directly from the formula for $b_1$.
+
+**Your solution**
+
+```{=latex}
+\vspace*{4cm}
+```
+
+## 2.1(h) Mean of the fitted values
+
+Calculate
+
+$$
+\overline{\hat{y}}
+=
+\frac{1}{N}\sum_{i=1}^{N}\hat{y}_i.
+$$
+
+Verify that
+
+$$
+\overline{\hat{y}}=\bar{y}.
+$$
+
+Use the relationship
+
+$$
+y_i=\hat{y}_i+\hat{e}_i
+$$
+
+to explain why this happens when the regression includes an intercept.
+
+**Your solution**
+
+```{=latex}
+\vspace*{4cm}
+```
+
+## 2.1(i) Estimate the error variance
+
+Calculate the sum of squared least squares residuals
+
+$$
+SSE=\sum_{i=1}^{N}\hat{e}_i^2.
+$$
+
+Then calculate the estimated error variance, which measures the remaining variation around the fitted regression line,
+
+$$
+\hat{\sigma}^2
+=
+\frac{SSE}{N-2}.
+$$
+
+Also calculate
+
+$$
+\hat{\sigma}=\sqrt{\hat{\sigma}^2}.
+$$
+
+Why is the denominator $N-2$ rather than $N$?
+
+Draw a residual plot and use it to explain what the residual variation represents.
+
+**Your solution**
+
+```{=latex}
+\vspace*{6cm}
+```
+
+## 2.1(j) Variance and standard error of the slope estimator
+
+Let
+
+$$
+S_{xx}
+=
+\sum_{i=1}^{N}(x_i-\bar{x})^2.
+$$
+
+Calculate the estimated sampling variance of the slope,
+
+$$
+\widehat{\operatorname{Var}}(b_2\mid\mathbf{x})
+=
+\frac{\hat{\sigma}^2}{S_{xx}}
+$$
+
+and
+
+$$
+se(b_2)
+=
+\sqrt{\widehat{\operatorname{Var}}(b_2\mid\mathbf{x})}.
+$$
+
+Explain the two parts of the formula:
+
+- What happens to the precision of $b_2$ when the error variation becomes larger?
+- What happens to the precision of $b_2$ when the observed $x$-values are more spread out?
+
+## Extensions
+
+**Your solution**
+
+```{=latex}
+\vspace*{6cm}
+```
+
+------------------------------------------------------------------------
+
+**Extensions**
+
+## 2.1(k) Variance and standard error of the intercept estimator
+
+Calculate the estimated sampling variance of the intercept,
+
+$$
+\widehat{\operatorname{Var}}(b_1\mid\mathbf{x})
+=
+\hat{\sigma}^2
+\left(
+\frac{1}{N}
++
+\frac{\bar{x}^2}{S_{xx}}
+\right).
+$$
+
+Show that this is equivalent to
+
+$$
+\widehat{\operatorname{Var}}(b_1\mid\mathbf{x})
+=
+\hat{\sigma}^2
+\left[
+\frac{\sum_{i=1}^{N}x_i^2}
+{N S_{xx}}
+\right].
+$$
+
+Then calculate
+
+$$
+se(b_1)
+=
+\sqrt{\widehat{\operatorname{Var}}(b_1\mid\mathbf{x})}.
+$$
+
+**Your solution**
+
+```{=latex}
+\vspace*{6cm}
+```
+
+## 2.1(l) Decomposing the variation in $y$
+
+For each observation,
+
+$$
+y_i-\bar{y}
+=
+(\hat{y}_i-\bar{y})
++
+\hat{e}_i.
+$$
+
+Use a graph to identify:
+
+- the total deviation $y_i-\bar{y}$,
+- the fitted component $\hat{y}_i-\bar{y}$,
+- the residual component $\hat{e}_i$.
+
+Then calculate
+
+$$
+TSS
+=
+\sum_{i=1}^{N}(y_i-\bar{y})^2,
+$$
+
+$$
+ESS
+=
+\sum_{i=1}^{N}(\hat{y}_i-\bar{y})^2,
+$$
+
+and
+
+$$
+SSE
+=
+\sum_{i=1}^{N}\hat{e}_i^2.
+$$
+
+Verify that
+
+$$
+TSS=ESS+SSE.
+$$
+
+Compare the sample variances
+
+$$
+\operatorname{Var}(y),
+\qquad
+\operatorname{Var}(\hat{y}),
+\qquad
+\operatorname{Var}(\hat{e}).
+$$
+
+Finally calculate
+
+$$
+R^2
+=
+\frac{ESS}{TSS}
+=
+1-\frac{SSE}{TSS}.
+$$
+
+Interpret the result carefully. Does this decomposition imply causality?
+
+**Your solution**
+
+```{=latex}
+\vspace*{6cm}
+```
+
+## 2.1(m) Why do we calculate $\sum x_i\hat{e}_i$?
+
+Verify numerically that
+
+$$
+\sum_{i=1}^{N}\hat{e}_i=0
+$$
+
+and
+
+$$
+\sum_{i=1}^{N}x_i\hat{e}_i=0.
+$$
+
+Then explain why these two results arise from minimizing
+
+$$
+SSE(b_1,b_2)
+=
+\sum_{i=1}^{N}
+(y_i-b_1-b_2x_i)^2.
+$$
+
+What does
+
+$$
+\sum_{i=1}^{N}x_i\hat{e}_i=0
+$$
+
+tell us about the sample covariance between $x$ and the OLS residuals?
+
+Does this prove that the population assumption
+
+$$
+E(e_i\mid\mathbf{x})=0
+$$
+
+is true? Explain.
+
+**Your solution**
+
+```{=latex}
+\vspace*{6cm}
+```
+
+## 2.1(n) OLS properties versus model assumptions
+
+For each statement below, decide whether it is:
+
+- a **mechanical property of the fitted OLS regression**,
+- a **model assumption about the population or data-generating process**, or
+- a **sample condition that can be checked directly**.
+
+Consider:
+
+$$
+\sum_{i=1}^{N}\hat{e}_i=0,
+$$
+
+$$
+\sum_{i=1}^{N}x_i\hat{e}_i=0,
+$$
+
+$$
+\overline{\hat{y}}=\bar{y},
+$$
+
+$$
+E(e_i\mid\mathbf{x})=0,
+$$
+
+$$
+\operatorname{Var}(e_i\mid\mathbf{x})=\sigma^2,
+$$
+
+$$
+\operatorname{Cov}(e_i,e_j\mid\mathbf{x})=0
+\qquad i\neq j,
+$$
+
+and the requirement that $x$ takes at least two different values.
+
+Briefly connect these statements to assumptions SR1–SR6.
+
+**Your solution**
+
+```{=latex}
+\vspace*{4cm}
+```
+
+## 2.1(o) Verify the hand calculations using `lm()`
+
+Only after completing the calculations above, estimate the model using
+
+``` r
+lm(y ~ x, data = exercise_data)
+```
+
+Use R to verify:
+
+- $b_1$,
+- $b_2$,
+- the fitted values,
+- the residuals,
+- $\hat{\sigma}$,
+- $se(b_1)$,
+- $se(b_2)$.
+
+Which quantities that took several steps to calculate by hand are produced automatically by `lm()`?
+
+**Your solution**
+
+```{=latex}
+\vspace*{4cm}
+```
+
+## 2.1(p) Prediction and extrapolation
+
+Use the fitted line to predict $y$ for:
+
+$$
+x=2
+$$
+
+and
+
+$$
+x=10.
+$$
+
+The observed range of $x$ in the sample is
+
+$$
+-1\leq x\leq 3.
+$$
+
+R can calculate both predictions. Should we have the same confidence in both?
+
+Plot the fitted line over an extended range and identify which prediction is an interpolation and which is an extrapolation.
+
+**Your solution**
+
+```{=latex}
+\vspace*{4cm}
+```
+
+\newpage
+
+# Exercise 2.2: Reproducing OLS with `lm()`
+
+This exercise uses the six observations from textbook Exercise 2.3. The purpose is **not** to repeat all the hand calculations from Exercise 2.1. Instead, use R to reproduce the most important results with a few commands and connect the output back to what you calculated by hand.
+
+Create the data:
+
+```{r}
+exercise_22 <- tibble(
+  x = 1:6,
+  y = c(6, 4, 11, 9, 13, 17)
+)
+```
+
+Useful commands include `lm()`, `coef()`, `fitted()`, `residuals()`, `sigma()`, `vcov()`, `mean()`, and `sum()`.
+
+## 2.2(a) Estimate the model
+
+Estimate the simple linear regression
+
+$$
+y_i=\beta_1+\beta_2x_i+e_i
+$$
+
+using `lm()`.
+
+Report the estimated regression line and interpret the intercept and slope.
+
+**Your solution**
+
+```{=latex}
+\vspace*{4cm}
+```
+
+## 2.2(b) Plot the data and fitted line
+
+Make a scatterplot of $y$ against $x$ and add the fitted regression line.
+
+You can use `ggplot()`, `geom_point()`, and `geom_smooth(method = "lm", se = FALSE)`.
+
+Add green dashed lines at $\bar{x}$ and $\bar{y}$. Does the fitted line pass through $(\bar{x},\bar{y})$?
+
+**Your solution**
+
+```{=latex}
+\vspace*{5cm}
+```
+
+## 2.2(c) Fitted values and residuals
+
+Use `fitted()` and `residuals()` to obtain $\hat{y}_i$ and $\hat{e}_i$.
+
+Create a table containing $x_i$, $y_i$, $\hat{y}_i$, and $\hat{e}_i$.
+
+Choose one observation and explain the meaning of its fitted value and residual.
+
+**Your solution**
+
+```{=latex}
+\vspace*{5cm}
+```
+
+## 2.2(d) Verify the OLS properties from Exercise 2.1
+
+Use R to verify the following sample properties:
+
+$$
+\sum_{i=1}^{N}\hat{e}_i=0,
+$$
+
+$$
+\sum_{i=1}^{N}x_i\hat{e}_i=0,
+$$
+
+and
+
+$$
+\overline{\hat{y}}=\bar{y}.
+$$
+
+Which of these are mechanical properties of OLS, and which are assumptions about the population?
+
+**Your solution**
+
+```{=latex}
+\vspace*{4cm}
+```
+
+## 2.2(e) SSE and the estimated error variance
+
+Use the residuals to calculate
+
+$$
+SSE=\sum_{i=1}^{N}\hat{e}_i^2.
+$$
+
+Then compare your calculation with `sigma(model)^2`.
+
+What does `sigma(model)` report?
+
+**Your solution**
+
+```{=latex}
+\vspace*{4cm}
+```
+
+## 2.2(f) Standard errors of the coefficients
+
+Use R to obtain the standard errors of $b_1$ and $b_2$.
+
+You may use either
+
+``` r
+coef(summary(model))
+```
+
+or
+
+``` r
+vcov(model)
+```
+
+Explain how the standard error of $b_2$ relates to the calculation you carried out in Exercise 2.1.
+
+For now, ignore the t-values and p-values in `summary(model)`. We return to statistical inference in Chapter 3.
+
+**Your solution**
+
+```{=latex}
+\vspace*{4cm}
+```
+
+## 2.2(g) What did R replace?
+
+For each item below, identify the R command that replaces the longer hand calculation from Exercise 2.1:
+
+- $b_1$ and $b_2$
+- fitted values
+- residuals
+- SSE
+- $\hat{\sigma}$
+- $se(b_1)$ and $se(b_2)$
+
+What do you gain by doing Exercise 2.1 by hand before using `lm()`?
+
+**Your solution**
+
+```{=latex}
+\vspace*{4cm}
+```
+
+\newpage
+
+# Additional exercises if time allows
+
+# Exercise 2.3: Prediction and elasticity
+
+This exercise is adapted from textbook Exercise 2.11.
+
+Let $y$ be monthly expenditure on food away from home per household member, measured in dollars, and let $x$ be monthly household income measured in **hundreds of dollars**.
+
+The estimated regression is
+
+$$
+\hat{y}=13.77+0.52x.
+$$
+
+## 2.3(a) Interpret the coefficients
+
+Interpret the estimated slope $0.52$ carefully, remembering the units of $x$.
+
+Also interpret the intercept. Is the intercept economically interesting in this application?
+
+**Your solution**
+
+```{=latex}
+\vspace*{3cm}
+```
+
+## 2.3(b) Prediction
+
+Predict monthly food-away-from-home expenditure for a household with monthly income of $\$2000$.
+
+Remember that income is measured in hundreds of dollars.
+
+**Your solution**
+
+```{=latex}
+\vspace*{3cm}
+```
+
+## 2.3(c) Elasticity at a point
+
+For a linear regression, the elasticity at a particular value of $x$ is
+
+$$
+\varepsilon
+=
+b_2\frac{x}{\hat{y}}.
+$$
+
+Calculate the income elasticity of food-away-from-home expenditure at a monthly household income of $\$2000$.
+
+Interpret the result.
+
+**Your solution**
+
+```{=latex}
+\vspace*{4cm}
+```
+
+# Exercise 2.4: Regression with an indicator variable
+
+This exercise is adapted from textbook Exercise 2.12.
+
+Let $y$ be monthly food-away-from-home expenditure per household member. Define
+
+- $ADVANCED=1$ if the household includes a member with an advanced degree,
+- $ADVANCED=0$ otherwise.
+
+The estimated regression is
+
+$$
+\hat{y}=44.96+30.41\,ADVANCED.
+$$
+
+## 2.4(a) Interpret the intercept and slope
+
+What does the intercept $44.96$ represent?
+
+What does the coefficient $30.41$ represent?
+
+**Your solution**
+
+```{=latex}
+\vspace*{3cm}
+```
+
+## 2.4(b) Calculate the two group means
+
+Use the regression equation to calculate predicted expenditure when $ADVANCED=0$ and when $ADVANCED=1$.
+
+Show that the slope coefficient is exactly the difference between these two predicted group means.
+
+**Your solution**
+
+```{=latex}
+\vspace*{3cm}
+```
