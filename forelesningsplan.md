@@ -56,7 +56,7 @@
 |    |         | [R kode](lectures/S09_ch02_simple_linear_regression.R) |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=fe2607de-2c56-492f-87bd-aee500c57671)     |
 | Exercise 1  | Deadline 16/09   |   [Obligatory Exercise 1](https://uit-sok-3081-h26.github.io/SOK-3081_Turkish_lira_inflation_html.html). Submit your paper as a pdf in Canvas.    |
-| 10 |  18/09  |  Seminar chapter 2  |
+| 10 |  18/09  |  Seminar chapter 2 [Exercises](lectures/S10_ex_2_11_student.pdf) |
 | 11 |  22/09   | Chapter 3   |
 |  |    | ["Old" video (Part 1)](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=e319d74e-c548-4de3-b6f5-aee500c4d176)   ["Old" video (Part 2)](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=4d290fdc-36ae-4d2d-8495-aee500c57827) |
 | 12 |  25/09  | Chapter 4   |
