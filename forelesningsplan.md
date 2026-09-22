@@ -59,6 +59,7 @@
 | 10 |  18/09  |  Seminar chapter 2 [Exercises](lectures/S10_ex_2_11_student.pdf) [QMD_file](lectures/S10_ex_2_11_worked.qmd) |
 | 11 |  22/09   | Chapter 3   |
 |  |    | ["Old" video (Part 1)](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=e319d74e-c548-4de3-b6f5-aee500c4d176)   ["Old" video (Part 2)](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=4d290fdc-36ae-4d2d-8495-aee500c57827) |
+|  |    |    |
 | 12 |  25/09  | Chapter 4   |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=befb571c-77a5-4919-b3e5-aee500c4b463)    |
 | 13 |  28/09  | Chapter 5  |
