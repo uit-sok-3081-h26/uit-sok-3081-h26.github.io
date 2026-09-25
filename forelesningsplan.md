@@ -60,8 +60,8 @@
 | 11 |  22/09   | Chapter 3   |
 |  |    | ["Old" video (Part 1)](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=e319d74e-c548-4de3-b6f5-aee500c4d176)   ["Old" video (Part 2)](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=4d290fdc-36ae-4d2d-8495-aee500c57827) |
 |  |    | [Lecture powerpoint](lectures/S11_ch03_interval_estimation_hypothesis_testing_complete.pptx) [Lecture PDF](lectures/S11_ch03_interval_estimation_hypothesis_testing_complete.pdf) [R-code](lectures/S11_ch03_inference.R) |
-| 12 |  25/09  | Chapter 4   |
-|  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=befb571c-77a5-4919-b3e5-aee500c4b463)    |
+| 12 |  25/09  | Chapter 3   |
+|  |    | [Lecture](lectures/S12_ch03_hypothesis_testing.pptx)   [R script](lectures/S12_ch03_hypothesis_testing_part_2.R)  |
 | 13 |  28/09  | Chapter 5  |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=d3c5a562-fdf8-48f6-9b49-aee500c5236b)     |
 | 14 | 30/09    | Chapter 6 |
