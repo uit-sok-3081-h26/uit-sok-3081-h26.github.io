@@ -62,17 +62,21 @@
 |  |    | [Lecture powerpoint](lectures/S11_ch03_interval_estimation_hypothesis_testing_complete.pptx) [Lecture PDF](lectures/S11_ch03_interval_estimation_hypothesis_testing_complete.pdf) [R-code](lectures/S11_ch03_inference.R) |
 | 12 |  25/09  | Chapter 3   |
 |  |    | [Lecture](lectures/S12_ch03_hypothesis_testing.pptx)   [R script](lectures/S12_ch03_hypothesis_testing_part_2.R)  |
-| 13 |  28/09  | Chapter 5  |
+| 13 | 28/09   | Chapter 4   |
+| 14 | 30/09   | Chapter 4   |
+| 15  | 30/09   | Seminar chapter 3   |
+| 16  | 13/10   | Seminar chapter 4   |
+| 17  | 15/10   | Chapter 5   |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=d3c5a562-fdf8-48f6-9b49-aee500c5236b)     |
-| 14 | 30/09    | Chapter 6 |
+| 18 | 16/10   | Seminar chapter 5   |
+| 19 | 22/10   | Chapter 6   |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=f7414982-3db6-4bb2-925b-aee500c49725)    |
-| 15 | 01/10  | Chapter 7  |
+| 20 | 23/10   | Seminar chapter 6   |
+| 21 | 26/10   | Chapter 7   |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=0cc6111f-0182-4bee-aa59-aee500c5110b)    |
-| 16 |  02/10 | Chapter 8  |
-| 17  | 13/10   |    |
-|  | 15/10   |    |
-|  | 22/10   |    |
-|  | 29/10   |    |
-|  | 03/11   |    |
-|  | 12/11   |    |
+| 22 | 29/10   | Seminar chapter 7   |
+| 23 | 03/11   | Chapter 8   |
+| 24 | 04/11   | Seminar chapter 8   |
+| 25 | 12/11  | Summery   |
+|  | 27/11   | Exam 09:00-13:00   |
 |  |    |    |
