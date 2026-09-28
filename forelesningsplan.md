@@ -63,6 +63,7 @@
 | 12 |  25/09  | Chapter 3   |
 |  |    | [Lecture](lectures/S12_ch03_hypothesis_testing.pptx)   [R script](lectures/S12_ch03_hypothesis_testing_part_2.R)  |
 | 13 | 28/09   | Chapter 4   |
+| | | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=befb571c-77a5-4919-b3e5-aee500c4b463)
 | 14 | 30/09   | Chapter 4   |
 | 15  | 30/09   | Seminar chapter 3   |
 | 16  | 13/10   | Seminar chapter 4   |
