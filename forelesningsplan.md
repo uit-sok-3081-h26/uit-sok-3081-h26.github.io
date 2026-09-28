@@ -62,6 +62,8 @@
 |  |    | [Lecture powerpoint](lectures/S11_ch03_interval_estimation_hypothesis_testing_complete.pptx) [Lecture PDF](lectures/S11_ch03_interval_estimation_hypothesis_testing_complete.pdf) [R-code](lectures/S11_ch03_inference.R) |
 | 12 |  25/09  | Chapter 3   |
 |  |    | [Lecture](lectures/S12_ch03_hypothesis_testing.pptx)   [R script](lectures/S12_ch03_hypothesis_testing_part_2.R)  |
+|13|28/09|[Chapter 4 part 1](https://uit-sok-3081-h26.github.io/lecture-04-part1.html)|
+|13|28/09|[Chapter 4 part 2](https://uit-sok-3081-h26.github.io/lecture-04-part1.html)|
 | 13 | 28/09   | Chapter 4   |
 | | | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=befb571c-77a5-4919-b3e5-aee500c4b463)
 | 14 | 30/09   | Chapter 4   |
