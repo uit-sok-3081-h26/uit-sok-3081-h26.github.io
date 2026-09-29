@@ -68,8 +68,8 @@
 |14|30/09|[Chapter 4 part 2](https://uit-sok-3081-h26.github.io/lecture-04-part2.html)|
 ||||
 | | | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=befb571c-77a5-4919-b3e5-aee500c4b463)
-| 15  | 30/09   | Seminar chapter 3   |
-||| [Seminar questions english](lectures/S15_ch03_seminar_student_en.qmd) [Seminar questions norwegian](lectures/S15_ch03_seminar_student_no.qmd)|
+| 15  | 30/09   | Seminar chapter 3  [Seminar questions english](lectures/S15_ch03_seminar_student_en.qmd) |
+|||  [Seminar questions norwegian](lectures/S15_ch03_seminar_student_no.qmd)|
 | 16  | 13/10   | Seminar chapter 4   |
 | 17  | 15/10   | Chapter 5   |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=d3c5a562-fdf8-48f6-9b49-aee500c5236b)     |
