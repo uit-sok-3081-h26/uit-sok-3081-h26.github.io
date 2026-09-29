@@ -1300,22 +1300,22 @@ WAGE = \beta_1 + \beta_2 EDUC + e
 <section id="interpret-model-a" class="slide level2">
 <h2>Interpret Model A</h2>
 <p><span class="math display">\[
-\widehat{WAGE} = -5.20 + 2.10 EDUC
+\widehat{WAGE} = -10.40 + 2.39 EDUC
 \]</span></p>
 <div class="challenge">
-<p>Write one sentence interpreting <span class="math inline">\(2.10\)</span>.</p>
+<p>Write one sentence interpreting <span class="math inline">\(2.39\)</span>.</p>
 </div>
 <p><br> <br></p>
 <p><strong>Time: 1 minute</strong></p>
 </section>
 <section id="round-2a-reveal" class="slide level2">
 <h2>Round 2A — Reveal</h2>
-<p>A one-year increase in education is associated with an estimated <strong>$2.10 increase in hourly wage</strong>, on average.</p>
+<p>A one-year increase in education is associated with an estimated <strong>$2.39 increase in hourly wage</strong>, on average.</p>
 </section>
 <section id="interpret-model-b" class="slide level2">
 <h2>Interpret Model B</h2>
 <p><span class="math display">\[
-\widehat{\ln(WAGE)} = \hat\beta_1 + 0.099 EDUC
+\widehat{\ln(WAGE)} = 1.59 + 0.099 EDUC
 \]</span></p>
 <div class="challenge">
 <p>What does <span class="math inline">\(0.099\)</span> mean?</p>
@@ -1384,7 +1384,7 @@ D. $9.9 additional dollars</p>
 <section id="model-c-arrives" class="slide level2">
 <h2>Model C arrives</h2>
 <p><span class="math display">\[
-\widehat{\ln(WAGE)} = 0.80 + 0.75\ln(EDUC)
+\widehat{\ln(WAGE)} = 0.20 + 1.04\ln(EDUC)
 \]</span></p>
 <div class="challenge">
 <p>Suppose education rises by 1%. What does Model C predict for wage, approximately?</p>
@@ -1400,7 +1400,7 @@ D. $9.9 additional dollars</p>
 <p><span class="math inline">\(\beta_2\)</span> is an <strong>elasticity</strong>.</p>
 <p>Therefore:</p>
 <blockquote>
-<p>A 1% increase in education is associated with approximately a <strong>0.75% increase in wage</strong>.</p>
+<p>A 1% increase in education is associated with approximately a <strong>1.03% increase in wage</strong>.</p>
 </blockquote>
 <p><span class="math display">\[
 \boxed{\beta_2=\text{elasticity}}
@@ -1595,7 +1595,7 @@ D. The coefficient must be statistically insignificant.</p>
 <tr class="odd">
 <td>A</td>
 <td><span class="math inline">\(WAGE\)</span></td>
-<td style="text-align: right;">0.30</td>
+<td style="text-align: right;">0.21</td>
 </tr>
 <tr class="even">
 <td>B</td>
@@ -1605,7 +1605,7 @@ D. The coefficient must be statistically insignificant.</p>
 <tr class="odd">
 <td>C</td>
 <td><span class="math inline">\(\ln(WAGE)\)</span></td>
-<td style="text-align: right;">0.28</td>
+<td style="text-align: right;">0.20</td>
 </tr>
 </tbody>
 </table>
@@ -1638,7 +1638,7 @@ R^2_{generalized} = \left[\operatorname{corr}(WAGE,\widehat{WAGE})\right]^2
 \]</span></p>
 <p>For the textbook log-linear wage example, the chapter reports approximately</p>
 <p><span class="math display">\[
-R^2_{ordinary}=0.2577, \ \ \&amp; \  \ R^2_{generalized}=0.159
+R^2_{ordinary}=0.26, \ \ \&amp; \  \ R^2_{generalized}=0.22
 \]</span></p>
 <div class="challenge">
 <p><strong>Question:</strong>Why are these two numbers different even though they come from the same fitted model?</p>
@@ -1648,8 +1648,8 @@ R^2_{ordinary}=0.2577, \ \ \&amp; \  \ R^2_{generalized}=0.159
 <h2>Generalized <span class="math inline">\(R^2\)</span> — Reveal</h2>
 <p>They answer different questions.</p>
 <ul>
-<li><span class="math inline">\(0.2577\)</span> asks: <strong>How much of the variation in <span class="math inline">\(\ln(WAGE)\)</span> is explained by the fitted log-wage regression?</strong></li>
-<li><span class="math inline">\(0.159\)</span> asks: <strong>How strongly do predicted wages track actual wages on the original wage scale?</strong></li>
+<li><span class="math inline">\(0.26\)</span> asks: <strong>How much of the variation in <span class="math inline">\(\ln(WAGE)\)</span> is explained by the fitted log-wage regression?</strong></li>
+<li><span class="math inline">\(0.22\)</span> asks: <strong>How strongly do predicted wages track actual wages on the original wage scale?</strong></li>
 </ul>
 <div class="reveal-answer">
 <p><strong>Main lesson:</strong> Always ask what scale the goodness-of-fit statistic is evaluating before using it to compare models.</p>
