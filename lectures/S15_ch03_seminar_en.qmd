@@ -1,0 +1,902 @@
+---
+title: "Seminar: Confidence Intervals and Hypothesis Testing"
+subtitle: "Chapter 3"
+lang: en
+format:
+  html:
+    toc: true
+    code-copy: true
+    embed-resources: true
+execute:
+  warning: true
+  message: false
+---
+
+## Learning objectives
+
+After the seminar, you should be able to
+
+- construct and interpret a confidence interval for a regression coefficient,
+- formulate a null and an alternative hypothesis,
+- carry out a one-sided or two-sided $t$-test,
+- calculate and interpret a p-value, and
+- state the conclusion in its economic context.
+
+The general workflow is
+
+$$
+\text{economic question}
+\longrightarrow H_0\text{ and }H_1
+\longrightarrow t\text{-value}
+\longrightarrow \text{p-value}
+\longrightarrow \text{conclusion}.
+$$
+```{r}
+#| label: setup
+#| include: false
+
+options(scipen = 10)
+options(digits = 4)
+
+
+```
+
+
+
+
+## Five-minute review
+
+### Confidence intervals
+
+Let $b_k$ estimate $\beta_k$, with estimated standard error
+$\operatorname{se}(b_k)$. A $100(1-\alpha)$ percent confidence interval is
+
+$$
+b_k\pm t(1-\alpha/2,N-2)\operatorname{se}(b_k).
+$$
+
+The method produces intervals that contain the true parameter in
+$100(1-\alpha)$ percent of repeated samples. It is not correct to say that
+there is a 95 percent probability that a fixed parameter lies in one already
+calculated interval.
+
+### Hypothesis tests
+
+For $H_0:\beta_k=c$, the test statistic is
+
+$$
+t=\frac{b_k-c}{\operatorname{se}(b_k)}.
+$$
+
+If $H_0$ is true and the model assumptions hold, it follows a $t$-distribution
+with $N-2$ degrees of freedom.
+
+| Alternative | Test | Extreme outcomes are in |
+|---|---|---|
+| $H_1:\beta_k>c$ | Right-tailed | Right tail |
+| $H_1:\beta_k<c$ | Left-tailed | Left tail |
+| $H_1:\beta_k\neq c$ | Two-sided | Both tails |
+
+The direction must be determined by the economic question before examining
+the estimate.
+
+### P-values
+
+The p-value is the probability, **assuming that the null hypothesis is true**,
+of obtaining a test statistic at least as extreme as the observed value in the
+direction specified by $H_1$.
+
+Reject $H_0$ if $p\leq\alpha$. If we do not reject $H_0$, the data do not
+provide sufficient evidence against it. This does not prove that $H_0$ is
+true.
+
+## Warm-up: critical values in R
+
+Suppose that $N=32$. In a simple linear regression with an intercept and one
+explanatory variable, the degrees of freedom are
+
+$$
+df=N-2=30.
+$$
+
+Use R to find
+
+1. the critical value for a 95 percent confidence interval,
+2. the critical value for a right-tailed test with $\alpha=0.05$,
+3. the critical value for a left-tailed test with $\alpha=0.05$, and
+4. both critical values for a two-sided test with $\alpha=0.05$.
+
+```{r}
+#| label: critical-values-warm-up
+
+N <- 32
+df <- N - 2
+alpha <- 0.05
+
+critical_values <- c(
+  confidence_interval_95 = qt(1 - alpha / 2, df = df),
+  right_tailed_test = qt(1 - alpha, df = df),
+  left_tailed_test = qt(alpha, df = df),
+  two_sided_lower = qt(alpha / 2, df = df),
+  two_sided_upper = qt(1 - alpha / 2, df = df)
+)
+
+critical_values
+```
+
+The location of the alternative hypothesis determines the tail or tails and,
+therefore, which percentile is required:
+
+$$
+H_1
+\longrightarrow
+\text{tail or tails}
+\longrightarrow
+\text{critical value}.
+$$
+
+## Worked example: food expenditure and income
+
+Consider
+
+$$
+FOOD\_EXP_i=\beta_1+\beta_2INCOME_i+e_i.
+$$
+
+`food_exp` is weekly food expenditure in dollars. `income` is weekly household
+income measured in hundreds of dollars. Thus, $\beta_2$ measures the change in
+expected weekly food expenditure associated with a 100-dollar increase in
+weekly income.
+
+### Estimate the model
+
+```{r}
+#| label: load-and-estimate-food
+
+load(url("http://www.principlesofeconometrics.com/poe5/data/rdata/food.rdata"))
+
+food_model <- lm(food_exp ~ income, data = food)
+summary(food_model)
+
+b2_food <- coef(food_model)["income"]
+se_b2_food <- sqrt(vcov(food_model)["income", "income"])
+df_food <- df.residual(food_model)
+
+c(
+  estimate = b2_food,
+  standard_error = se_b2_food,
+  degrees_of_freedom = df_food
+)
+```
+
+### A 95 percent confidence interval
+
+#### 1. Calculate it in R
+
+```{r}
+#| label: food-confidence-interval-en
+
+alpha_ci <- 0.05
+tc_ci <- qt(1 - alpha_ci / 2, df = df_food)
+
+food_ci <- c(
+  lower = b2_food - tc_ci * se_b2_food,
+  estimate = b2_food,
+  upper = b2_food + tc_ci * se_b2_food
+)
+
+food_ci
+confint(food_model, "income", level = 0.95)
+```
+
+#### 2. Connect the code to the formula
+
+$$
+\begin{aligned}
+b_2\pm t_c\operatorname{se}(b_2)
+&=`r round(b2_food, 4)`
+\pm `r round(tc_ci, 4)`\times`r round(se_b2_food, 4)`\\
+&=[`r round(food_ci[1], 4)`,\;
+`r round(food_ci[3], 4)`].
+\end{aligned}
+$$
+
+#### 3. Interpret the result
+
+A 100-dollar increase in weekly income is associated with an estimated
+`r round(b2_food, 2)`-dollar increase in expected weekly food expenditure. The
+95 percent confidence interval ranges from approximately
+`r round(food_ci[1], 2)` to `r round(food_ci[3], 2)` dollars. This
+is an estimated association; the regression alone does not establish a causal
+effect.
+
+### Test 1: Is the slope different from zero?
+
+We test
+
+$$
+H_0:\beta_2=0
+\qquad\text{against}\qquad
+H_1:\beta_2\neq0.
+$$
+
+This is a two-sided test because both positive and negative departures from
+zero count as evidence against $H_0$.
+
+```{r}
+#| label: food-two-sided-test-en
+
+null_1 <- 0
+alpha_1 <- 0.05
+
+t_food_1 <- (b2_food - null_1) / se_b2_food
+tc_food_1 <- qt(1 - alpha_1 / 2, df = df_food)
+p_food_1 <- 2 * pt(-abs(t_food_1), df = df_food)
+
+c(
+  t_statistic = t_food_1,
+  lower_critical_value = -tc_food_1,
+  upper_critical_value = tc_food_1,
+  p_value = p_food_1
+)
+```
+
+The calculation is
+
+$$
+t=\frac{b_2-0}{\operatorname{se}(b_2)}
+=\frac{`r round(b2_food, 4)`-0}{`r round(se_b2_food, 4)`}
+=`r round(t_food_1, 4)`.
+$$
+
+The two-sided p-value is
+
+$$
+p=2P\left[T(38)\geq |`r round(t_food_1, 4)`|\right]
+=`r format(p_food_1, scientific = TRUE, digits = 3)`.
+$$
+
+We reject $H_0$ at the 5 percent level. The data provide statistical evidence
+of an association between income and expected food expenditure.
+
+### Test 2: Is the increase greater than 5.50 dollars?
+
+Suppose profitability requires expected food expenditure to rise by more than
+5.50 dollars when weekly income rises by 100 dollars. We test
+
+$$
+H_0:\beta_2\leq5.5
+\qquad\text{against}\qquad
+H_1:\beta_2>5.5.
+$$
+
+```{r}
+#| label: food-right-tailed-test-en
+
+null_2 <- 5.5
+alpha_2 <- 0.05
+
+t_food_2 <- (b2_food - null_2) / se_b2_food
+tc_food_2 <- qt(1 - alpha_2, df = df_food)
+p_food_2 <- pt(t_food_2, df = df_food, lower.tail = FALSE)
+
+c(
+  t_statistic = t_food_2,
+  critical_value = tc_food_2,
+  p_value = p_food_2,
+  reject_null = p_food_2 <= alpha_2
+)
+```
+
+The calculation is
+
+$$
+t=\frac{b_2-5.5}{\operatorname{se}(b_2)}
+=\frac{`r round(b2_food, 4)`-5.5}{`r round(se_b2_food, 4)`}
+=`r round(t_food_2, 4)`.
+$$
+
+Because the test is right-tailed,
+
+$$
+p=P\left[T(38)\geq `r round(t_food_2, 4)`\right]
+=`r round(p_food_2, 4)`.
+$$
+
+We reject $H_0$ at the 5 percent level, but not at the 1 percent level. The
+data provide evidence at the 5 percent level that the increase exceeds 5.50
+dollars.
+
+For comparison, the two-sided p-value for the same null value is
+
+```{r}
+#| label: compare-food-p-values-en
+
+p_food_2_two_sided <- 2 * pt(-abs(t_food_2), df = df_food)
+
+c(
+  right_tailed_p_value = p_food_2,
+  two_sided_p_value = p_food_2_two_sided
+)
+```
+
+The test statistic does not change. The p-value changes because the two-sided
+test includes extreme outcomes in both tails.
+
+::: {.callout-important}
+## Before starting the student exercise
+
+For every test, write down $H_0$ and $H_1$ before calculating the p-value.
+Finish with one statistical conclusion and one interpretation in the economic
+context.
+:::
+
+## Student exercise: transport expenditure and income
+
+Consider
+
+$$
+TRANSPORT_i=\beta_1+\beta_2INCOME_i+e_i,
+$$
+
+where transport expenditure is measured in dollars and income in hundreds of
+dollars. For $N=32$ households, the estimated regression is
+
+$$
+\widehat{TRANSPORT}=35.2+6.8INCOME,
+$$
+
+with $\operatorname{se}(b_1)=18.4$ and
+$\operatorname{se}(b_2)=1.7$.
+
+### (a) Interpretation and degrees of freedom
+
+```{r}
+#| label: transport-setup-worked
+
+b1 <- 35.2
+b2 <- 6.8
+se_b1 <- 18.4
+se_b2 <- 1.7
+N <- 32
+df <- N - 2
+
+c(b1 = b1, b2 = b2, df = df)
+```
+
+The intercept estimates expected weekly transport expenditure to be 35.20
+dollars when weekly income is zero. This interpretation should be treated
+cautiously if the sample contains no households with income near zero.
+
+Because income is measured in hundreds of dollars, the slope says that a
+100-dollar increase in weekly income is associated with an estimated
+6.80-dollar increase in expected weekly transport expenditure. The regression
+has $32-2=30$ degrees of freedom.
+
+### (b) A 95 percent confidence interval
+
+```{r}
+#| label: transport-confidence-interval-worked
+
+alpha <- 0.05
+tc <- qt(1 - alpha / 2, df = df)
+
+transport_ci <- c(
+  lower = b2 - tc * se_b2,
+  estimate = b2,
+  upper = b2 + tc * se_b2
+)
+
+transport_ci
+```
+
+Substituting the numbers into the formula gives
+
+$$
+\begin{aligned}
+b_2\pm t(0.975,30)\operatorname{se}(b_2)
+&=6.8\pm `r round(tc, 4)`\times1.7\\
+&=[`r round(transport_ci["lower"], 4)`,\;
+`r round(transport_ci["upper"], 4)`].
+\end{aligned}
+$$
+
+We estimate with 95 percent confidence that a 100-dollar increase in weekly
+income is associated with an increase of between approximately
+`r round(transport_ci["lower"], 2)` and
+`r round(transport_ci["upper"], 2)` dollars in expected weekly transport
+expenditure.
+
+### (c) A right-tailed economic hypothesis
+
+The company's profitability claim gives
+
+$$
+H_0:\beta_2\leq4
+\qquad\text{against}\qquad
+H_1:\beta_2>4.
+$$
+
+```{r}
+#| label: transport-right-test-worked
+
+beta_null_right <- 4
+alpha_right <- 0.05
+
+t_transport_right <-
+  (b2 - beta_null_right) / se_b2
+
+tc_transport_right <-
+  qt(1 - alpha_right, df = df)
+
+p_transport_right <-
+  pt(t_transport_right, df = df, lower.tail = FALSE)
+
+c(
+  t_statistic = t_transport_right,
+  critical_value = tc_transport_right,
+  p_value = p_transport_right,
+  reject_null = p_transport_right <= alpha_right
+)
+```
+
+The test statistic is
+
+$$
+t=\frac{6.8-4}{1.7}=`r round(t_transport_right, 4)`.
+$$
+
+The 5 percent critical value is
+$t(0.95,30)=`r round(tc_transport_right, 4)`$, and the p-value is
+
+$$
+P[T(30)\geq `r round(t_transport_right, 4)`]
+=`r round(p_transport_right, 4)`.
+$$
+
+Because the p-value is slightly above 0.05, we do not reject $H_0$ at the
+5 percent level. The data do not provide sufficient evidence at that level
+that the increase exceeds 4 dollars. Because the p-value is below 0.10, the
+null hypothesis would be rejected at the 10 percent level.
+
+### (d) A two-sided hypothesis
+
+We test
+
+$$
+H_0:\beta_2=8
+\qquad\text{against}\qquad
+H_1:\beta_2\neq8.
+$$
+
+```{r}
+#| label: transport-two-sided-test-worked
+
+beta_null_two <- 8
+alpha_two <- 0.05
+
+t_transport_two <-
+  (b2 - beta_null_two) / se_b2
+
+tc_transport_two <-
+  qt(1 - alpha_two / 2, df = df)
+
+p_transport_two <-
+  2 * pt(-abs(t_transport_two), df = df)
+
+c(
+  t_statistic = t_transport_two,
+  lower_critical_value = -tc_transport_two,
+  upper_critical_value = tc_transport_two,
+  p_value = p_transport_two,
+  reject_null = p_transport_two <= alpha_two
+)
+```
+
+$$
+t=\frac{6.8-8}{1.7}=`r round(t_transport_two, 4)`.
+$$
+
+The critical values are
+$\pm t(0.975,30)=\pm`r round(tc_transport_two, 4)`$. The p-value is
+
+$$
+2P[T(30)\geq |`r round(t_transport_two, 4)`|]
+=`r round(p_transport_two, 4)`.
+$$
+
+We do not reject $H_0$. The data are compatible with a population slope of 8,
+but this result does not prove that the slope equals 8.
+
+### (e) Compare the tests
+
+The tests have different p-values because they use different null values and
+different alternatives. Part (c) places all relevant probability in the right
+tail, whereas part (d) uses both tails.
+
+A result may be rejected at 10 percent but not at 5 percent because the first
+rule uses a less demanding threshold. Here the right-tailed p-value lies
+between 0.05 and 0.10.
+
+For the slope, `summary(model)` would automatically report the two-sided test
+
+$$
+H_0:\beta_2=0
+\qquad\text{against}\qquad
+H_1:\beta_2\neq0.
+$$
+
+That is not the hypothesis used in either part (c) or part (d), so its p-value
+would not answer those economic questions.
+
+## Exit exercise: a left-tailed test
+
+Suppose $b_2=-0.90$, $\operatorname{se}(b_2)=0.35$, and $N=25$. We test
+
+$$
+H_0:\beta_2\geq0
+\qquad\text{against}\qquad
+H_1:\beta_2<0.
+$$
+
+```{r}
+#| label: left-tailed-exit-worked
+
+b2_demand <- -0.90
+se_b2_demand <- 0.35
+df_demand <- 25 - 2
+alpha_demand <- 0.05
+
+t_demand <- b2_demand / se_b2_demand
+tc_demand <- qt(alpha_demand, df = df_demand)
+p_demand <- pt(t_demand, df = df_demand)
+
+c(
+  t_statistic = t_demand,
+  critical_value = tc_demand,
+  p_value = p_demand,
+  reject_null = p_demand <= alpha_demand
+)
+```
+
+The test statistic is
+
+$$
+t=\frac{-0.90-0}{0.35}=`r round(t_demand, 4)`.
+$$
+
+The left-tail critical value is
+$t(0.05,23)=`r round(tc_demand, 4)`$, and the p-value is
+`r round(p_demand, 4)`. We reject $H_0$ at the 5 percent level. The data
+provide evidence of an inverse relationship between price and expected
+demand.
+
+## Extra Exercise 3.22: house prices in Collegetown
+
+The dataset contains 500 sales of single-family houses in Baton Rouge between
+2009 and 2013. `price` is measured in thousands of dollars, while `sqft` is
+floor area measured in hundreds of square feet. We estimate
+
+$$
+PRICE_i=\beta_1+\beta_2SQFT_i+e_i.
+$$
+
+### Preparation
+
+```{r}
+#| label: load-collegetown-worked-en
+
+load(url(
+  "http://www.principlesofeconometrics.com/poe5/data/rdata/collegetown.rdata"
+))
+
+plot(
+  x = collegetown$sqft,
+  y = collegetown$price,
+  xlab = "Floor area (hundreds of square feet)",
+  ylab = "Sale price (thousands of dollars)",
+  main = "House price and floor area",
+  pch = 16,
+  col = rgb(0, 0, 0, 0.35)
+)
+```
+
+### 3.22(a): Estimate the model and elasticity
+
+#### 1. Extract the required quantities in R
+
+```{r}
+#| label: solution-322a-en
+
+house_model <- lm(price ~ sqft, data = collegetown)
+summary(house_model)
+
+b2_house <- coef(house_model)["sqft"]
+se_b2_house <- sqrt(vcov(house_model)["sqft", "sqft"])
+df_house <- df.residual(house_model)
+
+mean_sqft <- mean(collegetown$sqft)
+mean_price <- mean(collegetown$price)
+elasticity_scale <- mean_sqft / mean_price
+
+elasticity_hat <- elasticity_scale * b2_house
+se_elasticity <- abs(elasticity_scale) * se_b2_house
+
+tc_elasticity <- qt(0.975, df = df_house)
+elasticity_ci <- c(
+  lower = elasticity_hat - tc_elasticity * se_elasticity,
+  estimate = elasticity_hat,
+  upper = elasticity_hat + tc_elasticity * se_elasticity
+)
+
+c(
+  mean_sqft = mean_sqft,
+  mean_price = mean_price,
+  slope = b2_house,
+  slope_standard_error = se_b2_house
+)
+
+elasticity_ci
+```
+
+#### 2. Substitute the numbers into the formulas
+
+The slope and standard error are
+$b_2=`r round(b2_house, 4)`$ and
+$\operatorname{se}(b_2)=`r round(se_b2_house, 4)`$. Therefore,
+
+$$
+\widehat\varepsilon
+=`r round(b2_house, 4)`
+\left(\frac{`r round(mean_sqft, 4)`}{`r round(mean_price, 4)`}\right)
+=`r round(elasticity_hat, 4)`.
+$$
+
+The standard error is
+
+$$
+\operatorname{se}(\widehat\varepsilon)
+=\left(\frac{`r round(mean_sqft, 4)`}{`r round(mean_price, 4)`}\right)
+`r round(se_b2_house, 4)`
+=`r round(se_elasticity, 4)`.
+$$
+
+Thus, the 95 percent confidence interval is
+
+$$
+`r round(elasticity_hat, 4)`
+\pm `r round(tc_elasticity, 4)`\times`r round(se_elasticity, 4)`
+= [`r round(elasticity_ci["lower"], 4)`,\;
+`r round(elasticity_ci["upper"], 4)`].
+$$
+
+#### 3. Interpretation
+
+A 100-square-foot increase in floor area is associated with approximately
+13,403 dollars higher expected sale price. At the sample means, one percent
+greater floor area is associated with approximately 1.46 percent higher
+expected price. The 95 percent confidence interval for the elasticity is
+approximately 1.37 to 1.56.
+
+### 3.22(b): Is the elasticity equal to one?
+
+We test at the 1 percent level
+
+$$
+H_0:\varepsilon=1
+\qquad\text{against}\qquad
+H_1:\varepsilon\neq1.
+$$
+
+#### 1. Calculate the test in R
+
+```{r}
+#| label: solution-322b-en
+
+elasticity_null <- 1
+alpha_elasticity <- 0.01
+
+t_elasticity <-
+  (elasticity_hat - elasticity_null) / se_elasticity
+
+tc_elasticity_test <-
+  qt(1 - alpha_elasticity / 2, df = df_house)
+
+p_elasticity <-
+  2 * pt(-abs(t_elasticity), df = df_house)
+
+c(
+  t_statistic = t_elasticity,
+  lower_critical_value = -tc_elasticity_test,
+  upper_critical_value = tc_elasticity_test,
+  p_value = p_elasticity,
+  reject_null = p_elasticity <= alpha_elasticity
+)
+```
+
+#### 2. Substitute the numbers into the test statistic
+
+$$
+t
+=\frac{\widehat\varepsilon-1}
+{\operatorname{se}(\widehat\varepsilon)}
+=\frac{`r round(elasticity_hat, 4)`-1}{`r round(se_elasticity, 4)`}
+=`r round(t_elasticity, 4)`.
+$$
+
+The critical values are
+$\pm t(0.995,498)=\pm`r round(tc_elasticity_test, 4)`$, and
+
+$$
+p=2P\left[T(498)\geq |`r round(t_elasticity, 4)`|\right]
+=`r format(p_elasticity, scientific = TRUE, digits = 3)`.
+$$
+
+#### 3. Decision and interpretation
+
+We reject $H_0$ at the 1 percent level. The data provide very strong evidence
+that the elasticity at the sample means is not one. The estimate indicates an
+elasticity greater than one.
+
+### 3.22(c): Is the marginal effect greater than 13,000 dollars?
+
+We test at the 5 percent level
+
+$$
+H_0:\beta_2\leq13
+\qquad\text{against}\qquad
+H_1:\beta_2>13.
+$$
+
+The null value is 13 because `price` is measured in thousands of dollars. A
+one-unit increase in `sqft` corresponds to 100 square feet.
+
+#### 1. Calculate the test in R
+
+```{r}
+#| label: solution-322c-en
+
+beta_null_house <- 13
+alpha_house <- 0.05
+
+t_house <- (b2_house - beta_null_house) / se_b2_house
+tc_house <- qt(1 - alpha_house, df = df_house)
+p_house <- pt(t_house, df = df_house, lower.tail = FALSE)
+
+c(
+  t_statistic = t_house,
+  critical_value = tc_house,
+  p_value = p_house,
+  reject_null = p_house <= alpha_house
+)
+```
+
+#### 2. Substitute the numbers into the test statistic
+
+$$
+t
+=\frac{b_2-13}{\operatorname{se}(b_2)}
+=\frac{`r round(b2_house, 4)`-13}{`r round(se_b2_house, 4)`}
+=`r round(t_house, 4)`.
+$$
+
+The critical value is $t(0.95,498)=`r round(tc_house, 4)`$, and
+
+$$
+p=P\left[T(498)\geq `r round(t_house, 4)`\right]
+=`r round(p_house, 4)`.
+$$
+
+#### 3. Decision and interpretation
+
+We do not reject $H_0$. Although the point estimate is above 13,000 dollars,
+the difference is not sufficiently large relative to its standard error to
+provide evidence that the population marginal effect exceeds 13,000 dollars.
+
+### 3.22(d): Expected price of a 2,000-square-foot house
+
+#### 1. Manual calculation using the model estimates
+
+```{r}
+#| label: solution-322d-en
+
+house_2000 <- data.frame(sqft = 20)
+
+b1_house <- coef(house_model)["(Intercept)"]
+expected_price_manual <- b1_house + 20 * b2_house
+
+sigma_hat_house <- summary(house_model)$sigma
+sum_sqft_squared <- sum((collegetown$sqft - mean_sqft)^2)
+
+se_expected_price_2000 <- sigma_hat_house * sqrt(
+  1 / nrow(collegetown) +
+    (20 - mean_sqft)^2 / sum_sqft_squared
+)
+
+tc_price <- qt(0.975, df = df_house)
+
+price_ci_manual <- c(
+  lower = expected_price_manual - tc_price * se_expected_price_2000,
+  estimate = expected_price_manual,
+  upper = expected_price_manual + tc_price * se_expected_price_2000
+)
+
+price_ci_manual
+
+predict(
+  house_model,
+  newdata = house_2000,
+  interval = "confidence",
+  level = 0.95
+)
+```
+
+The fitted expected price is
+
+$$
+`r round(b1_house, 4)`+20\times`r round(b2_house, 4)`
+=`r round(expected_price_manual, 4)`
+$$
+
+thousand dollars. Its standard error is
+
+$$
+\hat\sigma
+\sqrt{\frac{1}{N}+
+\frac{(20-\overline{SQFT})^2}
+{\sum_i(SQFT_i-\overline{SQFT})^2}}
+=`r round(se_expected_price_2000, 4)`.
+$$
+
+The 95 percent interval is
+
+$$
+`r round(expected_price_manual, 4)`
+\pm `r round(tc_price, 4)`\times`r round(se_expected_price_2000, 4)`
+= [`r round(price_ci_manual["lower"], 4)`,\;
+`r round(price_ci_manual["upper"], 4)`].
+$$
+
+The estimated expected price is approximately 152,635 dollars, with a 95
+percent confidence interval from approximately 141,550 to 163,721 dollars.
+This is an interval for the expected price, not for one individual house.
+
+### 3.22(e): Compare with observed houses
+
+```{r}
+#| label: solution-322e-en
+
+houses_observed_2000 <- subset(collegetown, sqft == 20)
+
+houses_observed_2000[, c("price", "sqft")]
+
+c(
+  mean_price = mean(houses_observed_2000$price),
+  number_of_houses = nrow(houses_observed_2000)
+)
+```
+
+For the three observed houses,
+
+$$
+\overline{PRICE}_{SQFT=20}
+=\frac{138+169+183}{3}
+=`r round(mean(houses_observed_2000$price), 4)`
+$$
+
+thousand dollars. This mean lies inside the confidence interval from part (d),
+although near its upper endpoint. The comparison should be interpreted with
+caution because the observed mean is based on only three houses.
+
+## Suggested timing
+
+| Activity | Time |
+|---|---:|
+| Review of key concepts | 5 min |
+| Critical-value warm-up | 8 min |
+| Worked `food` example | 22 min |
+| Transport exercise (a)–(b) | 10 min |
+| Transport exercise (c)–(d) | 20 min |
+| Class review and comparison | 17 min |
+| Left-tailed exit exercise | 5 min |
+| Optional Exercise 3.22 | If time permits or homework |

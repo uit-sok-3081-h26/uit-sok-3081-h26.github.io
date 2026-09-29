@@ -1,0 +1,953 @@
+---
+title: "Seminar: Konfidensintervall og hypotesetesting"
+subtitle: "Kapittel 3"
+lang: nb
+format:
+  html:
+    toc: true
+    code-copy: true
+    code-fold: false
+    embed-resources: true
+execute:
+  warning: true
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+options(scipen = 10)
+options(digits = 4)
+```
+
+## Mål for seminaret
+
+Etter seminaret skal studentene kunne
+
+- konstruere og tolke et konfidensintervall for en regresjonskoeffisient,
+- formulere nullhypotese og alternativ hypotese,
+- gjennomføre en ensidig eller tosidig $t$-test,
+- beregne og tolke en p-verdi, og
+- formulere konklusjonen i den økonomiske konteksten.
+
+Arbeidsflyten er den samme i alle oppgavene:
+
+$$
+\text{økonomisk spørsmål}
+\longrightarrow
+H_0\text{ og }H_1
+\longrightarrow
+t\text{-verdi}
+\longrightarrow
+\text{p-verdi}
+\longrightarrow
+\text{konklusjon}.
+$$
+
+## Fem minutters oppsummering
+
+### Konfidensintervall
+
+La $b_k$ være OLS-estimatet for parameteren $\beta_k$, og la
+$\operatorname{se}(b_k)$ være den estimerte standardfeilen. Et
+$100(1-\alpha)$ prosent konfidensintervall er
+
+$$
+b_k \pm t_{1-\alpha/2,\,df}\operatorname{se}(b_k),
+$$ {#eq-ci}
+
+der $df=N-2$ i en enkel lineær regresjon med konstantledd.
+
+Et 95 prosent konfidensintervall er laget med en metode som, ved gjentatte
+utvalg, vil inneholde den sanne parameteren i 95 prosent av utvalgene. Når
+intervallet er beregnet, er endepunktene faste. Vi sier derfor ikke at det er
+95 prosent sannsynlighet for at den faste parameteren ligger i akkurat dette
+intervallet.
+
+### Hypotesetest
+
+Når nullhypotesen er $H_0:\beta_k=c$, bruker vi
+
+$$
+t=\frac{b_k-c}{\operatorname{se}(b_k)}.
+$$ {#eq-t-test}
+
+Hvis $H_0$ er sann og modellforutsetningene holder, følger testobservatoren en
+$t$-fordeling med $df=N-2$ frihetsgrader.
+
+| Alternativ hypotese | Type test | Store avvik mot $H_0$ ligger i |
+|---|---|---|
+| $H_1:\beta_k>c$ | høyresidig | høyre hale |
+| $H_1:\beta_k<c$ | venstresidig | venstre hale |
+| $H_1:\beta_k\neq c$ | tosidig | begge haler |
+
+Retningen bestemmes av det økonomiske spørsmålet og skal velges før vi ser på
+resultatet.
+
+### P-verdi
+
+P-verdien er sannsynligheten, **gitt at nullhypotesen er sann**, for å få en
+testobservator minst like ekstrem som den observerte, i retningen bestemt av
+$H_1$.
+
+Beslutningsregelen er
+
+$$
+\text{forkast }H_0\text{ dersom p-verdien}\leq\alpha.
+$$
+
+En p-verdi er ikke sannsynligheten for at $H_0$ er sann. Hvis vi ikke forkaster
+$H_0$, betyr det at dataene ikke gir tilstrekkelig evidens mot den. Det betyr
+ikke at vi har bevist eller «akseptert» $H_0$.
+
+## Gjennomgang: matutgifter og inntekt
+
+Vi bruker modellen
+
+$$
+FOOD\_EXP_i=\beta_1+\beta_2 INCOME_i+e_i.
+$$ {#eq-food-model}
+
+`food_exp` er ukentlige matutgifter i dollar, mens `income` er ukentlig
+husholdningsinntekt målt i hundre dollar. Parameteren $\beta_2$ måler derfor
+endringen i forventede ukentlige matutgifter når ukentlig inntekt øker med
+100 dollar.
+
+### Last data og estimer modellen
+
+```{r}
+#| label: load-food
+
+load(url(
+  "http://www.principlesofeconometrics.com/poe5/data/rdata/food.rdata"
+))
+head(food)
+
+food_model <- lm(food_exp ~ income, data = food)
+summary(food_model)
+```
+
+```{r}
+#| label: food-estimates
+
+b2_food <- coef(food_model)["income"]
+se_b2_food <- coef(summary(food_model))["income", "Std. Error"]
+df_food <- df.residual(food_model)
+
+c(
+  estimate = b2_food,
+  standard_error = se_b2_food,
+  degrees_of_freedom = df_food
+)
+```
+
+### Et 95 prosent konfidensintervall
+
+#### 1. Hent størrelsene fra modellen
+
+Koden ovenfor henter $b_2$, $\operatorname{se}(b_2)$ og frihetsgradene fra
+`food_model`. Deretter finner vi den kritiske verdien og beregner intervallet.
+
+```{r}
+#| label: food-confidence-interval
+
+alpha_ci <- 0.05
+t_critical_ci <- qt(1 - alpha_ci / 2, df = df_food)
+
+food_ci_manual <- c(
+  lower = b2_food - t_critical_ci * se_b2_food,
+  estimate = b2_food,
+  upper = b2_food + t_critical_ci * se_b2_food
+)
+
+food_ci_manual
+confint(food_model, "income", level = 0.95)
+```
+
+#### 2. Sett tallene inn i formelen
+
+$$
+t_{0.975,38}=`r round(t_critical_ci, 4)`,
+$$
+
+og dermed
+
+$$
+\begin{aligned}
+b_2\pm t_c\operatorname{se}(b_2)
+&=`r round(b2_food, 4)`
+\pm `r round(t_critical_ci, 4)`\times`r round(se_b2_food, 4)`\\
+&=[`r round(food_ci_manual["lower"], 4)`,\;
+`r round(food_ci_manual["upper"], 4)`].
+\end{aligned}
+$$
+
+#### 3. Kontroller med R og tolk
+
+`confint()` gir samme resultat som formelen, bortsett fra eventuelle små
+avrundingsforskjeller.
+
+Estimatet sier at 100 dollar høyere ukentlig inntekt er forbundet med omtrent
+10,21 dollar høyere forventede ukentlige matutgifter. Et 95 prosent
+konfidensintervall for økningen er omtrent 5,97 til 14,45 dollar.
+
+### Test 1: Er helningen forskjellig fra null?
+
+$$
+H_0:\beta_2=0
+\qquad\text{mot}\qquad
+H_1:\beta_2\neq0.
+$$
+
+#### 1. Hent estimat og standardfeil
+
+Fra modellen har vi $b_2=`r round(b2_food, 4)`$ og
+$\operatorname{se}(b_2)=`r round(se_b2_food, 4)`$.
+
+```{r}
+#| label: food-two-sided-test
+
+beta_null_1 <- 0
+alpha_1 <- 0.05
+
+t_food_1 <- (b2_food - beta_null_1) / se_b2_food
+critical_food_1 <- qt(1 - alpha_1 / 2, df = df_food)
+p_food_1 <- 2 * (1 - pt(abs(t_food_1), df = df_food))
+
+c(
+  t_statistic = t_food_1,
+  lower_critical_value = -critical_food_1,
+  upper_critical_value = critical_food_1,
+  p_value = p_food_1
+)
+```
+
+#### 2. Sett tallene inn i testobservatoren
+
+$$
+t=\frac{b_2-0}{\operatorname{se}(b_2)}
+=\frac{`r round(b2_food, 4)`-0}{`r round(se_b2_food, 4)`}
+=`r round(t_food_1, 4)`.
+$$
+
+Den tosidige p-verdien og de kritiske grensene er
+
+$$
+\begin{aligned}
+p
+&=2P\left(T_{38}\geq |`r round(t_food_1, 4)`|\right)
+=`r format(p_food_1, scientific = TRUE, digits = 3)`,\\
+t_c&=\pm t_{0.975,38}=\pm`r round(critical_food_1, 4)`.
+\end{aligned}
+$$
+
+#### 3. Beslutning og økonomisk konklusjon
+
+Testobservatoren er omtrent 4,88, og p-verdien er omtrent 0,0000195. Vi
+forkaster $H_0$ på 5-prosentnivået. Dataene gir statistisk evidens for en
+sammenheng mellom inntekt og forventede matutgifter.
+
+### Test 2: Er økningen større enn 5,50 dollar?
+
+$$
+H_0:\beta_2\leq5.5
+\qquad\text{mot}\qquad
+H_1:\beta_2>5.5.
+$$
+
+#### 1. Hent estimat og standardfeil
+
+Estimatet og standardfeilen er de samme, men den relevante nullverdien er nå
+5,5.
+
+```{r}
+#| label: food-right-sided-test
+
+beta_null_2 <- 5.5
+alpha_2 <- 0.05
+
+t_food_2 <- (b2_food - beta_null_2) / se_b2_food
+critical_food_2 <- qt(1 - alpha_2, df = df_food)
+p_food_2 <- 1 - pt(t_food_2, df = df_food)
+
+c(
+  t_statistic = t_food_2,
+  critical_value = critical_food_2,
+  p_value = p_food_2,
+  reject_null = p_food_2 <= alpha_2
+)
+```
+
+#### 2. Sett tallene inn i testobservatoren
+
+$$
+t=\frac{b_2-5.5}{\operatorname{se}(b_2)}
+=\frac{`r round(b2_food, 4)`-5.5}{`r round(se_b2_food, 4)`}
+=`r round(t_food_2, 4)`.
+$$
+
+Siden testen er høyresidig,
+
+$$
+\begin{aligned}
+p
+&=P\left(T_{38}\geq `r round(t_food_2, 4)`\right)
+=`r round(p_food_2, 4)`,\\
+t_c&=t_{0.95,38}=`r round(critical_food_2, 4)`.
+\end{aligned}
+$$
+
+#### 3. Beslutning og økonomisk konklusjon
+
+Testobservatoren er omtrent 2,25 og p-verdien omtrent 0,015. Vi forkaster
+$H_0$ på 5-prosentnivået, men ikke på 1-prosentnivået. Dataene gir evidens på
+5-prosentnivået for at økningen er større enn 5,50 dollar.
+
+```{r}
+#| label: compare-food-p-values
+
+p_food_2_two_sided <- 2 * (1 - pt(abs(t_food_2), df = df_food))
+
+c(
+  right_sided_p_value = p_food_2,
+  two_sided_p_value = p_food_2_two_sided
+)
+```
+
+Den tosidige p-verdien er omtrent 0,030. Testobservatoren endres ikke, men den
+tosidige testen inkluderer ekstreme utfall i begge haler.
+
+## Studentoppgave: transportutgifter og inntekt
+
+Vi bruker modellen
+
+$$
+TRANSPORT_i=\beta_1+\beta_2INCOME_i+e_i,
+$$
+
+der `TRANSPORT` er ukentlige transportutgifter i dollar og `INCOME` er
+ukentlig inntekt målt i hundre dollar. For $N=32$ husholdninger er den
+estimerte regresjonen
+
+$$
+\widehat{TRANSPORT}=35.2+6.8INCOME,
+$$
+
+med $\operatorname{se}(b_1)=18.4$ og
+$\operatorname{se}(b_2)=1.7$.
+
+### (a) Tolkning og frihetsgrader
+
+**Oppgave.** Tolk konstantleddet og helningen med riktige enheter. Finn
+deretter antall frihetsgrader.
+
+```{r}
+#| label: transport-setup-worked-no
+
+b1 <- 35.2
+b2 <- 6.8
+se_b1 <- 18.4
+se_b2 <- 1.7
+N <- 32
+df <- N - 2
+
+c(b1 = b1, b2 = b2, df = df)
+```
+
+**Løsning.** Konstantleddet anslår forventede ukentlige
+transportutgifter til 35,20 dollar når ukentlig inntekt er null. Denne
+tolkningen må brukes varsomt dersom utvalget ikke inneholder
+husholdninger med inntekt nær null.
+
+Siden inntekt er målt i hundre dollar, sier helningen at 100 dollar
+høyere ukentlig inntekt er forbundet med 6,80 dollar høyere forventede
+ukentlige transportutgifter. Vi har $df=N-2=30$ frihetsgrader.
+
+### (b) Et 95 prosent konfidensintervall
+
+**Oppgave.** Konstruer og tolk et 95 prosent konfidensintervall for
+$\beta_2$. Vis både formelen og R-koden.
+
+```{r}
+#| label: transport-confidence-interval-worked-no
+
+alpha_transport <- 0.05
+tc_transport <- qt(1 - alpha_transport / 2, df = df)
+
+transport_ci <- c(
+  lower = b2 - tc_transport * se_b2,
+  estimate = b2,
+  upper = b2 + tc_transport * se_b2
+)
+
+transport_ci
+```
+
+Ved å sette tallene inn i formelen får vi
+
+$$
+\begin{aligned}
+b_2\pm t_{0.975,30}\operatorname{se}(b_2)
+&=6.8\pm `r round(tc_transport, 4)`\times1.7\\
+&=[`r round(transport_ci["lower"], 4)`,\;
+`r round(transport_ci["upper"], 4)`].
+\end{aligned}
+$$
+
+Vi anslår med 95 prosent konfidens at 100 dollar høyere ukentlig inntekt
+er forbundet med mellom omtrent
+`r round(transport_ci["lower"], 2)` og
+`r round(transport_ci["upper"], 2)` dollar høyere forventede ukentlige
+transportutgifter.
+
+### (c) En høyresidig økonomisk hypotese
+
+Et transportselskap hevder at et prosjekt bare er lønnsomt dersom 100
+dollar høyere ukentlig inntekt øker forventede transportutgifter med mer
+enn 4 dollar. Vi tester på 5-prosentnivået
+
+$$
+H_0:\beta_2\leq4
+\qquad\text{mot}\qquad
+H_1:\beta_2>4.
+$$
+
+**Oppgave.** Beregn testobservatoren, kritisk verdi og p-verdi. Oppgi
+statistisk og økonomisk konklusjon. Ville konklusjonen blitt en annen på
+10-prosentnivået?
+
+```{r}
+#| label: transport-right-test-worked-no
+
+beta_null_right <- 4
+alpha_right <- 0.05
+
+t_transport_right <-
+  (b2 - beta_null_right) / se_b2
+
+tc_transport_right <-
+  qt(1 - alpha_right, df = df)
+
+p_transport_right <-
+  pt(t_transport_right, df = df, lower.tail = FALSE)
+
+c(
+  t_statistic = t_transport_right,
+  critical_value = tc_transport_right,
+  p_value = p_transport_right,
+  reject_null = p_transport_right <= alpha_right
+)
+```
+
+Testobservatoren er
+
+$$
+t=\frac{6.8-4}{1.7}=`r round(t_transport_right, 4)`.
+$$
+
+Den kritiske verdien er
+$t_{0.95,30}=`r round(tc_transport_right, 4)`$, og p-verdien er
+
+$$
+P\left(T_{30}\geq `r round(t_transport_right, 4)`\right)
+=`r round(p_transport_right, 4)`.
+$$
+
+P-verdien er litt større enn 0,05. Vi forkaster derfor ikke $H_0$ på
+5-prosentnivået. Dataene gir ikke tilstrekkelig evidens på dette nivået
+for at økningen er større enn 4 dollar. Siden p-verdien er mindre enn
+0,10, ville vi forkastet $H_0$ på 10-prosentnivået.
+
+### (d) En tosidig hypotese
+
+Vi tester på 5-prosentnivået
+
+$$
+H_0:\beta_2=8
+\qquad\text{mot}\qquad
+H_1:\beta_2\neq8.
+$$
+
+**Oppgave.** Beregn testobservatoren, kritiske verdier og p-verdi.
+Avslutt med en konklusjon.
+
+```{r}
+#| label: transport-two-sided-test-worked-no
+
+beta_null_two <- 8
+alpha_two <- 0.05
+
+t_transport_two <-
+  (b2 - beta_null_two) / se_b2
+
+tc_transport_two <-
+  qt(1 - alpha_two / 2, df = df)
+
+p_transport_two <-
+  2 * pt(-abs(t_transport_two), df = df)
+
+c(
+  t_statistic = t_transport_two,
+  lower_critical_value = -tc_transport_two,
+  upper_critical_value = tc_transport_two,
+  p_value = p_transport_two,
+  reject_null = p_transport_two <= alpha_two
+)
+```
+
+$$
+t=\frac{6.8-8}{1.7}=`r round(t_transport_two, 4)`.
+$$
+
+De kritiske verdiene er
+$\pm t_{0.975,30}=\pm`r round(tc_transport_two, 4)`$, og den tosidige
+p-verdien er `r round(p_transport_two, 4)`. Vi forkaster ikke $H_0$.
+Dataene er forenlige med en populasjonshelning på 8, men dette beviser
+ikke at helningen er lik 8.
+
+### (e) Sammenlign testene
+
+Testene i (c) og (d) har ulike p-verdier fordi både nullverdien og
+alternativet er forskjellige. Testen i (c) bruker bare høyre hale, mens
+testen i (d) bruker begge haler.
+
+`summary(model)` rapporterer automatisk den tosidige testen
+
+$$
+H_0:\beta_2=0
+\qquad\text{mot}\qquad
+H_1:\beta_2\neq0.
+$$
+
+Denne automatiske p-verdien besvarer derfor verken spørsmålet i (c)
+eller spørsmålet i (d).
+
+## Kort avslutningsoppgave: en venstresidig test
+
+Anta at en etterspørselsmodell gir
+$b_2=-0.90$, $\operatorname{se}(b_2)=0.35$ og $N=25$. Test på
+5-prosentnivået
+
+$$
+H_0:\beta_2\geq0
+\qquad\text{mot}\qquad
+H_1:\beta_2<0.
+$$
+
+```{r}
+#| label: left-tailed-exit-worked-no
+
+b2_demand <- -0.90
+se_b2_demand <- 0.35
+df_demand <- 25 - 2
+alpha_demand <- 0.05
+
+t_demand <- b2_demand / se_b2_demand
+tc_demand <- qt(alpha_demand, df = df_demand)
+p_demand <- pt(t_demand, df = df_demand)
+
+c(
+  t_statistic = t_demand,
+  critical_value = tc_demand,
+  p_value = p_demand,
+  reject_null = p_demand <= alpha_demand
+)
+```
+
+Her er
+
+$$
+t=\frac{-0.90-0}{0.35}=`r round(t_demand, 4)`.
+$$
+
+Den venstresidige kritiske verdien er
+$t_{0.05,23}=`r round(tc_demand, 4)`$, og p-verdien er
+`r round(p_demand, 4)`. Vi forkaster $H_0$. Dataene gir evidens for en
+negativ sammenheng mellom pris og forventet etterspørsel.
+
+## Ekstraoppgave 3.22: boligpriser i Collegetown
+
+Datasettet inneholder 500 salg av eneboliger i Baton Rouge i perioden
+2009–2013. `price` er målt i tusen dollar, og `sqft` er boligens areal målt i
+hundre kvadratfot. Vi estimerer
+
+$$
+PRICE_i=\beta_1+\beta_2 SQFT_i+e_i.
+$$ {#eq-house-model}
+
+Arbeid først med del (a)–(c). Del (d)–(e) kan brukes dersom tiden tillater.
+
+### Klargjøring
+
+```{r}
+#| label: load-collegetown
+
+load(url(
+  "http://www.principlesofeconometrics.com/poe5/data/rdata/collegetown.rdata"
+))
+head(collegetown)
+
+plot(
+  x = collegetown$sqft,
+  y = collegetown$price,
+  xlab = "Areal (hundre kvadratfot)",
+  ylab = "Salgspris (tusen dollar)",
+  main = "Boligpris og boligareal",
+  pch = 16,
+  col = rgb(0, 0, 0, 0.35)
+)
+```
+
+### 3.22(a): Estimer modellen og elastisiteten
+
+Elastisiteten ved utvalgsgjennomsnittene er
+
+$$
+\widehat{\varepsilon}
+=b_2\frac{\overline{SQFT}}{\overline{PRICE}}.
+$$
+
+Når gjennomsnittene behandles som faste tall, skaleres standardfeilen på samme
+måte.
+
+#### 1. Hent nødvendige størrelser med R
+
+```{r}
+#| label: solution-322a
+
+house_model <- lm(price ~ sqft, data = collegetown)
+summary(house_model)
+
+b2_house <- coef(house_model)["sqft"]
+se_b2_house <- coef(summary(house_model))["sqft", "Std. Error"]
+df_house <- df.residual(house_model)
+
+mean_sqft <- mean(collegetown$sqft)
+mean_price <- mean(collegetown$price)
+elasticity_scale <- mean_sqft / mean_price
+
+elasticity_hat <- elasticity_scale * b2_house
+se_elasticity <- elasticity_scale * se_b2_house
+
+t_critical_elasticity <- qt(0.975, df = df_house)
+elasticity_ci <- c(
+  lower = elasticity_hat - t_critical_elasticity * se_elasticity,
+  estimate = elasticity_hat,
+  upper = elasticity_hat + t_critical_elasticity * se_elasticity
+)
+
+c(
+  mean_sqft = mean_sqft,
+  mean_price = mean_price,
+  slope = b2_house,
+  slope_standard_error = se_b2_house
+)
+
+elasticity_ci
+```
+
+#### 2. Sett tallene inn i formlene
+
+Helningen og standardfeilen er
+$b_2=`r round(b2_house, 4)`$ og
+$\operatorname{se}(b_2)=`r round(se_b2_house, 4)`$. Med
+$\overline{SQFT}=`r round(mean_sqft, 4)`$ og
+$\overline{PRICE}=`r round(mean_price, 4)`$ får vi
+
+$$
+\widehat{\varepsilon}
+=`r round(b2_house, 4)`
+\left(\frac{`r round(mean_sqft, 4)`}{`r round(mean_price, 4)`}\right)
+=`r round(elasticity_hat, 4)`.
+$$
+
+Standardfeilen skaleres med den samme konstanten:
+
+$$
+\operatorname{se}(\widehat{\varepsilon})
+=\left(\frac{`r round(mean_sqft, 4)`}{`r round(mean_price, 4)`}\right)
+`r round(se_b2_house, 4)`
+=`r round(se_elasticity, 4)`.
+$$
+
+Det kritiske tallet er
+$t_{0.975,498}=`r round(t_critical_elasticity, 4)`$. Dermed er intervallet
+
+$$
+`r round(elasticity_hat, 4)`
+\pm `r round(t_critical_elasticity, 4)`
+\times `r round(se_elasticity, 4)`
+= [`r round(elasticity_ci["lower"], 4)`,\;
+`r round(elasticity_ci["upper"], 4)`].
+$$
+
+#### 3. Tolk resultatet
+
+Helningsestimatet er omtrent 13,40. En økning i arealet på 100 kvadratfot er
+derfor forbundet med omtrent 13 403 dollar høyere forventet salgspris.
+
+Elastisitetsestimatet er omtrent 1,46, med et 95 prosent konfidensintervall fra
+omtrent 1,37 til 1,56. Ved utvalgsgjennomsnittene er én prosent større areal
+forbundet med omtrent 1,46 prosent høyere forventet pris. Hele intervallet
+ligger over én.
+
+### 3.22(b): Er elastisiteten lik én?
+
+Vi tester på 1-prosentnivået
+
+$$
+H_0:\varepsilon=1
+\qquad\text{mot}\qquad
+H_1:\varepsilon\neq1.
+$$
+
+#### 1. Beregn testen med R
+
+```{r}
+#| label: solution-322b
+
+elasticity_null <- 1
+alpha_elasticity <- 0.01
+
+t_elasticity <-
+  (elasticity_hat - elasticity_null) / se_elasticity
+
+critical_elasticity <-
+  qt(1 - alpha_elasticity / 2, df = df_house)
+
+p_elasticity <-
+  2 * pt(-abs(t_elasticity), df = df_house)
+
+c(
+  t_statistic = t_elasticity,
+  lower_critical_value = -critical_elasticity,
+  upper_critical_value = critical_elasticity,
+  p_value = p_elasticity,
+  reject_null = p_elasticity <= alpha_elasticity
+)
+```
+
+#### 2. Sett tallene inn i testformelen
+
+$$
+t
+=\frac{\widehat{\varepsilon}-1}
+{\operatorname{se}(\widehat{\varepsilon})}
+=\frac{`r round(elasticity_hat, 4)`-1}
+{`r round(se_elasticity, 4)`}
+=`r round(t_elasticity, 4)`.
+$$
+
+Ved $\alpha=0.01$ er de kritiske grensene
+
+$$
+\pm t_{0.995,498}=\pm`r round(critical_elasticity, 4)`.
+$$
+
+Den tosidige p-verdien er
+
+$$
+p=2P\left(T_{498}\geq |`r round(t_elasticity, 4)`|\right)
+=`r format(p_elasticity, scientific = TRUE, digits = 3)`.
+$$
+
+#### 3. Beslutning og økonomisk konklusjon
+
+Testobservatoren er omtrent 9,42, og p-verdien er omtrent
+`r format(p_elasticity, scientific = TRUE, digits = 3)`. Vi forkaster $H_0$ på
+1-prosentnivået. Dataene gir svært sterk evidens for at elastisiteten ved
+gjennomsnittene ikke er én. Estimatet tilsier at den er større enn én.
+
+### 3.22(c): Er marginaleffekten større enn 13 000 dollar?
+
+Vi tester på 5-prosentnivået
+
+$$
+H_0:\beta_2\leq13
+\qquad\text{mot}\qquad
+H_1:\beta_2>13.
+$$
+
+Nullverdien er 13 fordi `price` er målt i tusen dollar. Én enhets økning i
+`sqft` tilsvarer 100 kvadratfot.
+
+#### 1. Beregn testen med R
+
+```{r}
+#| label: solution-322c
+
+beta_null_house <- 13
+alpha_house <- 0.05
+
+t_house <- (b2_house - beta_null_house) / se_b2_house
+critical_house <- qt(1 - alpha_house, df = df_house)
+p_house <- 1 - pt(t_house, df = df_house)
+
+c(
+  t_statistic = t_house,
+  critical_value = critical_house,
+  p_value = p_house,
+  reject_null = p_house <= alpha_house
+)
+```
+
+#### 2. Sett tallene inn i testformelen
+
+$$
+t
+=\frac{b_2-13}{\operatorname{se}(b_2)}
+=\frac{`r round(b2_house, 4)`-13}{`r round(se_b2_house, 4)`}
+=`r round(t_house, 4)`.
+$$
+
+For den høyresidige testen er
+
+$$
+\begin{aligned}
+t_c&=t_{0.95,498}=`r round(critical_house, 4)`,\\
+p&=P\left(T_{498}\geq `r round(t_house, 4)`\right)
+=`r round(p_house, 4)`.
+\end{aligned}
+$$
+
+#### 3. Beslutning og økonomisk konklusjon
+
+Testobservatoren er omtrent 0,90 og p-verdien omtrent 0,185. Vi forkaster ikke
+$H_0$ på 5-prosentnivået. Punktestimatet er riktignok høyere enn 13 000 dollar,
+men forskjellen er ikke stor nok relativt til standardfeilen til å gi
+tilstrekkelig evidens for at den sanne marginaleffekten er større enn 13 000
+dollar.
+
+### 3.22(d): Forventet pris for en bolig på 2000 kvadratfot
+
+#### 1. Beregn for hånd ved hjelp av modellestimatene
+
+Punktestimatet er
+
+$$
+\widehat{E(PRICE\mid SQFT=20)}=b_1+20b_2.
+$$
+
+```{r}
+#| label: solution-322d
+
+house_2000 <- data.frame(sqft = 20)
+
+b1_house <- coef(house_model)["(Intercept)"]
+expected_price_manual <- b1_house + 20 * b2_house
+
+sigma_hat_house <- summary(house_model)$sigma
+sum_sqft_squared <- sum(
+  (collegetown$sqft - mean_sqft)^2
+)
+
+se_expected_price_2000 <- sigma_hat_house * sqrt(
+  1 / nrow(collegetown) +
+    (20 - mean_sqft)^2 / sum_sqft_squared
+)
+
+t_critical_price <- qt(0.975, df = df_house)
+
+price_ci_manual <- c(
+  lower = expected_price_manual -
+    t_critical_price * se_expected_price_2000,
+  estimate = expected_price_manual,
+  upper = expected_price_manual +
+    t_critical_price * se_expected_price_2000
+)
+
+price_ci_manual
+
+expected_price_2000 <- predict(
+  house_model,
+  newdata = house_2000,
+  interval = "confidence",
+  level = 0.95
+)
+
+expected_price_2000
+```
+
+Vi setter først inn koeffisientene:
+
+$$
+`r round(b1_house, 4)`+20\times`r round(b2_house, 4)`
+=`r round(expected_price_manual, 4)`.
+$$
+
+Dette er i tusen dollar. Standardfeilen til den estimerte forventede verdien
+er
+
+$$
+\operatorname{se}(\widehat{E(PRICE\mid SQFT=20)})
+=\widehat\sigma
+\sqrt{\frac{1}{N}+
+\frac{(20-\overline{SQFT})^2}
+{\sum_i(SQFT_i-\overline{SQFT})^2}}
+=`r round(se_expected_price_2000, 4)`.
+$$
+
+Konfidensintervallet blir
+
+$$
+`r round(expected_price_manual, 4)`
+\pm `r round(t_critical_price, 4)`
+\times `r round(se_expected_price_2000, 4)`
+= [`r round(price_ci_manual["lower"], 4)`,\;
+`r round(price_ci_manual["upper"], 4)`].
+$$
+
+#### 2. Kontroller med `predict()` og tolk
+
+Den estimerte forventede prisen er omtrent 152 635 dollar. Et 95 prosent
+konfidensintervall for den forventede prisen er omtrent 141 550 til 163 721
+dollar. Intervallet gjelder gjennomsnittet for boliger på 2000 kvadratfot, ikke
+prisen til én bestemt bolig.
+
+### 3.22(e): Sammenlign med observerte boliger
+
+#### 1. Finn observasjonene og beregn gjennomsnittet i R
+
+```{r}
+#| label: solution-322e
+
+houses_observed_2000 <- subset(collegetown, sqft == 20)
+
+houses_observed_2000[, c("price", "sqft")]
+
+c(
+  mean_price = mean(houses_observed_2000$price),
+  number_of_houses = nrow(houses_observed_2000)
+)
+```
+
+#### 2. Knytt koden til gjennomsnittsformelen
+
+For de tre observerte boligene er
+
+$$
+\overline{PRICE}_{SQFT=20}
+=\frac{138+169+183}{3}
+=`r round(mean(houses_observed_2000$price), 4)`.
+$$
+
+#### 3. Sammenlign og tolk
+
+De tre observerte boligene har en gjennomsnittlig salgspris på omtrent 163 333
+dollar. Dette ligger innenfor 95-prosentintervallet for den forventede prisen,
+men nær øvre grense. Resultatet er forenlig med regresjonsestimatet. Samtidig
+må sammenligningen tolkes varsomt fordi gjennomsnittet bare bygger på tre
+boliger.
+
+## Forslag til tidsbruk
+
+| Aktivitet | Tid |
+|---|---:|
+| Oppsummering av begrepene | 5 min |
+| Gjennomgang av `food` | 25–30 min |
+| Studentene arbeider med 3.22(a) | 15 min |
+| Kort felles gjennomgang | 5 min |
+| Studentene arbeider med 3.22(b)–(c) | 20 min |
+| Felles gjennomgang og konklusjoner | 10 min |
+| 3.22(d)–(e), dersom tiden tillater | resterende tid |

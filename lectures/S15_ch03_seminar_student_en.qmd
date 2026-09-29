@@ -1,0 +1,740 @@
+---
+title: "Seminar: Confidence Intervals and Hypothesis Testing"
+subtitle: "Chapter 3 – student version"
+lang: en
+format:
+  html:
+    toc: true
+    code-copy: true
+    embed-resources: true
+execute:
+  warning: true
+  message: false
+---
+
+## Learning objectives
+
+After the seminar, you should be able to
+
+- construct and interpret a confidence interval for a regression coefficient,
+- formulate a null and an alternative hypothesis,
+- carry out a one-sided or two-sided $t$-test,
+- calculate and interpret a p-value, and
+- state the conclusion in its economic context.
+
+The general workflow is
+
+$$
+\text{economic question}
+\longrightarrow H_0\text{ and }H_1
+\longrightarrow t\text{-value}
+\longrightarrow \text{p-value}
+\longrightarrow \text{conclusion}.
+$$
+
+```{r}
+#| label: setup
+#| include: false
+
+options(scipen = 10)
+options(digits = 4)
+
+
+```
+
+## Five-minute review
+
+### Confidence intervals
+
+Let $b_k$ estimate $\beta_k$, with estimated standard error $\operatorname{se}(b_k)$. A $100(1-\alpha)$ percent confidence interval is
+
+$$
+b_k\pm t(1-\alpha/2,N-2)\operatorname{se}(b_k).
+$$
+
+The method produces intervals that contain the true parameter in $100(1-\alpha)$ percent of repeated samples. It is not correct to say that there is a 95 percent probability that a fixed parameter lies in one already calculated interval.
+
+### Hypothesis tests
+
+For $H_0:\beta_k=c$, the test statistic is
+
+$$
+t=\frac{b_k-c}{\operatorname{se}(b_k)}.
+$$
+
+If $H_0$ is true and the model assumptions hold, it follows a $t$-distribution with $N-2$ degrees of freedom.
+
+| Alternative         | Test         | Extreme outcomes are in |
+|---------------------|--------------|-------------------------|
+| $H_1:\beta_k>c$     | Right-tailed | Right tail              |
+| $H_1:\beta_k<c$     | Left-tailed  | Left tail               |
+| $H_1:\beta_k\neq c$ | Two-sided    | Both tails              |
+
+The direction must be determined by the economic question before examining the estimate.
+
+### P-values
+
+The p-value is the probability, **assuming that the null hypothesis is true**, of obtaining a test statistic at least as extreme as the observed value in the direction specified by $H_1$.
+
+Reject $H_0$ if $p\leq\alpha$. If we do not reject $H_0$, the data do not provide sufficient evidence against it. This does not prove that $H_0$ is true.
+
+## Warm-up: critical values in R
+
+Suppose that $N=32$. In a simple linear regression with an intercept and one explanatory variable, the degrees of freedom are
+
+$$
+df=N-2=30.
+$$
+
+Use R to find
+
+1.  the critical value for a 95 percent confidence interval,
+2.  the critical value for a right-tailed test with $\alpha=0.05$,
+3.  the critical value for a left-tailed test with $\alpha=0.05$, and
+4.  both critical values for a two-sided test with $\alpha=0.05$.
+
+```{r}
+#| label: critical-values-warm-up
+
+N <- 32
+df <- N - 2
+alpha <- 0.05
+
+critical_values <- c(
+  confidence_interval_95 = qt(1 - alpha / 2, df = df),
+  right_tailed_test = qt(1 - alpha, df = df),
+  left_tailed_test = qt(alpha, df = df),
+  two_sided_lower = qt(alpha / 2, df = df),
+  two_sided_upper = qt(1 - alpha / 2, df = df)
+)
+
+critical_values
+```
+
+The location of the alternative hypothesis determines the tail or tails and, therefore, which percentile is required:
+
+$$
+H_1
+\longrightarrow
+\text{tail or tails}
+\longrightarrow
+\text{critical value}.
+$$
+
+## Worked example: food expenditure and income
+
+Consider
+
+$$
+FOOD\_EXP_i=\beta_1+\beta_2INCOME_i+e_i.
+$$
+
+`food_exp` is weekly food expenditure in dollars. `income` is weekly household income measured in hundreds of dollars. Thus, $\beta_2$ measures the change in expected weekly food expenditure associated with a 100-dollar increase in weekly income.
+
+### Estimate the model
+
+```{r}
+#| label: load-and-estimate-food
+
+load(url("http://www.principlesofeconometrics.com/poe5/data/rdata/food.rdata"))
+
+food_model <- lm(food_exp ~ income, data = food)
+summary(food_model)
+
+b2_food <- coef(food_model)["income"]
+se_b2_food <- sqrt(vcov(food_model)["income", "income"])
+df_food <- df.residual(food_model)
+
+c(
+  estimate = b2_food,
+  standard_error = se_b2_food,
+  degrees_of_freedom = df_food
+)
+```
+
+### A 95 percent confidence interval
+
+#### 1. Calculate it in R
+
+```{r}
+#| label: food-confidence-interval-en
+
+alpha_ci <- 0.05
+tc_ci <- qt(1 - alpha_ci / 2, df = df_food)
+
+food_ci <- c(
+  lower = b2_food - tc_ci * se_b2_food,
+  estimate = b2_food,
+  upper = b2_food + tc_ci * se_b2_food
+)
+
+food_ci
+confint(food_model, "income", level = 0.95)
+```
+
+#### 2. Connect the code to the formula
+
+$$
+\begin{aligned}
+b_2\pm t_c\operatorname{se}(b_2)
+&=`r round(b2_food, 4)`
+\pm `r round(tc_ci, 4)`\times`r round(se_b2_food, 4)`\\
+&=[`r round(food_ci[1], 4)`,\;
+`r round(food_ci[3], 4)`].
+\end{aligned}
+$$
+
+#### 3. Interpret the result
+
+A 100-dollar increase in weekly income is associated with an estimated `r round(b2_food, 2)`-dollar increase in expected weekly food expenditure. The 95 percent confidence interval ranges from approximately `r round(food_ci[1], 2)` to `r round(food_ci[3], 2)` dollars. This is an estimated association; the regression alone does not establish a causal effect.
+
+### Test 1: Is the slope different from zero?
+
+We test
+
+$$
+H_0:\beta_2=0
+\qquad\text{against}\qquad
+H_1:\beta_2\neq0.
+$$
+
+This is a two-sided test because both positive and negative departures from zero count as evidence against $H_0$.
+
+```{r}
+#| label: food-two-sided-test-en
+
+null_1 <- 0
+alpha_1 <- 0.05
+
+t_food_1 <- (b2_food - null_1) / se_b2_food
+tc_food_1 <- qt(1 - alpha_1 / 2, df = df_food)
+p_food_1 <- 2 * pt(-abs(t_food_1), df = df_food)
+
+c(
+  t_statistic = t_food_1,
+  lower_critical_value = -tc_food_1,
+  upper_critical_value = tc_food_1,
+  p_value = p_food_1
+)
+```
+
+The calculation is
+
+$$
+t=\frac{b_2-0}{\operatorname{se}(b_2)}
+=\frac{`r round(b2_food, 4)`-0}{`r round(se_b2_food, 4)`}
+=`r round(t_food_1, 4)`.
+$$
+
+The two-sided p-value is
+
+$$
+p=2P\left[T(38)\geq |`r round(t_food_1, 4)`|\right]
+=`r format(p_food_1, scientific = TRUE, digits = 3)`.
+$$
+
+We reject $H_0$ at the 5 percent level. The data provide statistical evidence of an association between income and expected food expenditure.
+
+### Test 2: Is the increase greater than 5.50 dollars?
+
+Suppose profitability requires expected food expenditure to rise by more than 5.50 dollars when weekly income rises by 100 dollars. We test
+
+$$
+H_0:\beta_2\leq5.5
+\qquad\text{against}\qquad
+H_1:\beta_2>5.5.
+$$
+
+```{r}
+#| label: food-right-tailed-test-en
+
+null_2 <- 5.5
+alpha_2 <- 0.05
+
+t_food_2 <- (b2_food - null_2) / se_b2_food
+tc_food_2 <- qt(1 - alpha_2, df = df_food)
+p_food_2 <- pt(t_food_2, df = df_food, lower.tail = FALSE)
+
+c(
+  t_statistic = t_food_2,
+  critical_value = tc_food_2,
+  p_value = p_food_2,
+  reject_null = p_food_2 <= alpha_2
+)
+```
+
+The calculation is
+
+$$
+t=\frac{b_2-5.5}{\operatorname{se}(b_2)}
+=\frac{`r round(b2_food, 4)`-5.5}{`r round(se_b2_food, 4)`}
+=`r round(t_food_2, 4)`.
+$$
+
+Because the test is right-tailed,
+
+$$
+p=P\left[T(38)\geq `r round(t_food_2, 4)`\right]
+=`r round(p_food_2, 4)`.
+$$
+
+We reject $H_0$ at the 5 percent level, but not at the 1 percent level. The data provide evidence at the 5 percent level that the increase exceeds 5.50 dollars.
+
+For comparison, the two-sided p-value for the same null value is
+
+```{r}
+#| label: compare-food-p-values-en
+
+p_food_2_two_sided <- 2 * pt(-abs(t_food_2), df = df_food)
+
+c(
+  right_tailed_p_value = p_food_2,
+  two_sided_p_value = p_food_2_two_sided
+)
+```
+
+The test statistic does not change. The p-value changes because the two-sided test includes extreme outcomes in both tails.
+
+::: callout-important
+## Before starting the student exercise
+
+For every test, write down $H_0$ and $H_1$ before calculating the p-value. Finish with one statistical conclusion and one interpretation in the economic context.
+:::
+
+## Student exercise: transport expenditure and income
+
+Consider the model
+
+$$
+TRANSPORT_i=\beta_1+\beta_2INCOME_i+e_i,
+$$
+
+where `TRANSPORT` is weekly household transport expenditure in dollars and `INCOME` is weekly household income measured in hundreds of dollars. For $N=32$ households, the estimated regression is
+
+$$
+\widehat{TRANSPORT}=35.2+6.8INCOME,
+$$
+
+with
+
+$$
+\operatorname{se}(b_1)=18.4,
+\qquad
+\operatorname{se}(b_2)=1.7.
+$$
+
+Use both the mathematical formulas and R. For each test, finish with
+
+1.  a statistical decision, and
+2.  an interpretation in the context of transport expenditure.
+
+::: callout-tip
+## Suggested workflow
+
+Write the hypotheses and identify the tail or tails before calculating the test statistic. Then calculate the critical value and p-value. Do not choose the direction of a test after seeing the estimate.
+:::
+
+### (a) Interpretation and degrees of freedom
+
+1.  Interpret $b_1=35.2$.
+2.  Interpret $b_2=6.8$ using the correct units.
+3.  Calculate the degrees of freedom.
+
+The numerical information has already been entered for you:
+
+```{r}
+#| label: transport-setup-student
+#| eval: false
+
+b1 <- 35.2
+b2 <- 6.8
+se_b1 <- 18.4
+se_b2 <- 1.7
+N <- 32
+df <- N - 2
+
+c(b1 = b1, b2 = b2, df = df)
+```
+
+**Your interpretation:** Write one sentence for the intercept and one sentence for the slope. Remember that one unit of `INCOME` is 100 dollars.
+
+### (b) A 95 percent confidence interval
+
+Construct and interpret a 95 percent confidence interval for $\beta_2$.
+
+Use
+
+$$
+b_2\pm t_{1-\alpha/2,N-2}\operatorname{se}(b_2).
+$$
+
+Complete the missing parts:
+
+```{r}
+#| label: transport-confidence-interval-student
+#| eval: false
+
+alpha <- 0.05
+tc <- qt(___, df = df)
+
+transport_ci <- c(
+  lower = b2 - ___ * ___,
+  estimate = b2,
+  upper = b2 + ___ * ___
+)
+
+transport_ci
+```
+
+Also substitute the numbers into the formula:
+
+$$
+6.8\pm t_{0.975,30}\times1.7.
+$$
+
+**Your interpretation:** What does the interval say about the change in expected weekly transport expenditure associated with a 100-dollar increase in weekly income?
+
+### (c) A right-tailed economic hypothesis
+
+A transport company argues that a project is profitable only if a 100-dollar increase in weekly income raises expected weekly transport expenditure by more than 4 dollars.
+
+Test at the 5 percent level
+
+$$
+H_0:\beta_2\leq4
+\qquad\text{against}\qquad
+H_1:\beta_2>4.
+$$
+
+The test statistic is
+
+$$
+t=\frac{b_2-4}{\operatorname{se}(b_2)}
+=\frac{6.8-4}{1.7}.
+$$
+
+Complete the code:
+
+```{r}
+#| label: transport-right-test-student
+#| eval: false
+
+beta_null <- 4
+alpha <- 0.05
+
+t_obs <- (b2 - beta_null) / se_b2
+tc <- qt(___, df = df)
+p_value <- pt(t_obs, df = df, lower.tail = ___)
+
+c(
+  t_statistic = t_obs,
+  critical_value = tc,
+  p_value = p_value,
+  reject_null = p_value <= alpha
+)
+```
+
+Answer the following:
+
+1.  Why is this a right-tailed test?
+2.  What is the rejection region?
+3.  Do you reject or not reject $H_0$ at the 5 percent level?
+4.  What is the economic conclusion?
+5.  Would the decision change at the 10 percent level? Use the same p-value to explain.
+
+### (d) A two-sided hypothesis
+
+Test at the 5 percent level
+
+$$
+H_0:\beta_2=8
+\qquad\text{against}\qquad
+H_1:\beta_2\neq8.
+$$
+
+Start with
+
+$$
+t=\frac{b_2-8}{\operatorname{se}(b_2)}
+=\frac{6.8-8}{1.7}.
+$$
+
+Complete the code:
+
+```{r}
+#| label: transport-two-sided-test-student
+#| eval: false
+
+beta_null <- 8
+alpha <- 0.05
+
+t_obs <- (b2 - beta_null) / se_b2
+tc <- qt(___, df = df)
+p_value <- 2 * pt(___, df = df)
+
+c(
+  t_statistic = t_obs,
+  lower_critical_value = ___,
+  upper_critical_value = ___,
+  p_value = p_value,
+  reject_null = ___
+)
+```
+
+Report the test statistic, critical values, p-value, decision, and economic conclusion.
+
+### (e) Compare the tests
+
+Answer briefly:
+
+1.  Why do parts (c) and (d) have different p-values even though they use the same estimated slope and standard error?
+2.  Why can a hypothesis be rejected at the 10 percent level but not at the 5 percent level?
+3.  Which hypothesis test would `summary(model)` report automatically for a slope coefficient?
+4.  Why would that automatic p-value not answer either part (c) or part (d)?
+
+## Short exit exercise: a left-tailed test
+
+Suppose a demand model gives
+
+$$
+b_2=-0.90,\qquad
+\operatorname{se}(b_2)=0.35,\qquad
+N=25.
+$$
+
+At the 5 percent level, test
+
+$$
+H_0:\beta_2\geq0
+\qquad\text{against}\qquad
+H_1:\beta_2<0.
+$$
+
+```{r}
+#| label: left-tailed-exit-student
+#| eval: false
+
+b2 <- -0.90
+se_b2 <- 0.35
+df <- 25 - 2
+alpha <- 0.05
+
+t_obs <- (b2 - 0) / se_b2
+tc <- qt(___, df = df)
+p_value <- pt(___, df = df)
+
+c(
+  t_statistic = t_obs,
+  critical_value = tc,
+  p_value = p_value,
+  reject_null = ___
+)
+```
+
+State the decision and interpret it in terms of price and expected demand.
+
+## Extra Exercise 3.22: house prices in Collegetown
+
+Use this exercise if you finish the transport exercise early. The dataset contains 500 sales of single-family houses in Baton Rouge between 2009 and 2013.
+
+- `price` is the sale price in thousands of dollars.
+- `sqft` is floor area in hundreds of square feet.
+
+We use
+
+$$
+PRICE_i=\beta_1+\beta_2SQFT_i+e_i.
+$$
+
+### Preparation
+
+The data are downloaded directly from the textbook website:
+
+```{r}
+#| label: load-collegetown-student
+
+load(url(
+  "http://www.principlesofeconometrics.com/poe5/data/rdata/collegetown.rdata"
+))
+
+head(collegetown)
+
+plot(
+  x = collegetown$sqft,
+  y = collegetown$price,
+  xlab = "Floor area (hundreds of square feet)",
+  ylab = "Sale price (thousands of dollars)",
+  main = "House price and floor area",
+  pch = 16,
+  col = rgb(0, 0, 0, 0.35)
+)
+```
+
+### 3.22(a): Estimate the model and elasticity
+
+1.  Estimate the model using `lm()`.
+2.  Interpret the slope using the correct units.
+3.  Calculate the price elasticity with respect to floor area at the sample means:
+
+$$
+\widehat\varepsilon
+=b_2\frac{\overline{SQFT}}{\overline{PRICE}}.
+$$
+
+Treating the sample means as fixed numbers, use
+
+$$
+\operatorname{se}(\widehat\varepsilon)
+=\frac{\overline{SQFT}}{\overline{PRICE}}
+\operatorname{se}(b_2).
+$$
+
+4.  Construct a 95 percent confidence interval for the elasticity.
+5.  Interpret the point estimate and interval.
+
+The model specification and extraction commands are partly completed:
+
+```{r}
+#| label: exercise-322a-student
+#| eval: false
+
+house_model <- lm(price ~ sqft, data = collegetown)
+summary(house_model)
+
+b2_house <- coef(house_model)["sqft"]
+se_b2_house <- coef(summary(house_model))["sqft", "Std. Error"]
+df_house <- df.residual(house_model)
+
+mean_sqft <- mean(collegetown$sqft)
+mean_price <- mean(collegetown$price)
+
+elasticity_scale <- ___
+elasticity_hat <- ___
+se_elasticity <- ___
+
+tc_elasticity <- qt(___, df = df_house)
+elasticity_ci <- c(
+  lower = ___,
+  estimate = elasticity_hat,
+  upper = ___
+)
+
+elasticity_ci
+```
+
+### 3.22(b): Is the elasticity equal to one?
+
+At the 1 percent level, test
+
+$$
+H_0:\varepsilon=1
+\qquad\text{against}\qquad
+H_1:\varepsilon\neq1.
+$$
+
+```{r}
+#| label: exercise-322b-student
+#| eval: false
+
+elasticity_null <- 1
+alpha_elasticity <- 0.01
+
+t_elasticity <-
+  (elasticity_hat - elasticity_null) / se_elasticity
+
+tc_elasticity_test <- qt(___, df = df_house)
+p_elasticity <- 2 * pt(___, df = df_house)
+
+c(
+  t_statistic = t_elasticity,
+  lower_critical_value = ___,
+  upper_critical_value = ___,
+  p_value = p_elasticity,
+  reject_null = ___
+)
+```
+
+Explain why the test is two-sided and report the statistical and economic conclusions.
+
+### 3.22(c): Is the marginal effect greater than 13,000 dollars?
+
+At the 5 percent level, test
+
+$$
+H_0:\beta_2\leq13
+\qquad\text{against}\qquad
+H_1:\beta_2>13.
+$$
+
+The null value is 13 because `price` is measured in thousands of dollars and one unit of `sqft` represents 100 square feet.
+
+```{r}
+#| label: exercise-322c-student
+#| eval: false
+
+beta_null_house <- 13
+alpha_house <- 0.05
+
+t_house <- (b2_house - beta_null_house) / se_b2_house
+tc_house <- qt(___, df = df_house)
+p_house <- pt(___, df = df_house, lower.tail = ___)
+
+c(
+  t_statistic = t_house,
+  critical_value = tc_house,
+  p_value = p_house,
+  reject_null = ___
+)
+```
+
+### 3.22(d): Expected price of a 2,000-square-foot house
+
+A 2,000-square-foot house has `sqft = 20`.
+
+1.  Estimate its expected price.
+2.  Construct a 95 percent confidence interval for the expected price.
+3.  Convert the results from thousands of dollars to dollars in your interpretation.
+
+```{r}
+#| label: exercise-322d-student
+#| eval: false
+
+house_2000 <- data.frame(sqft = 20)
+
+expected_price_2000 <- predict(
+  house_model,
+  newdata = house_2000,
+  interval = ___,
+  level = 0.95
+)
+
+expected_price_2000
+```
+
+Use `interval = "confidence"` because the question concerns an expected price rather than the price of one new individual house.
+
+### 3.22(e): Compare with observed houses
+
+```{r}
+#| label: exercise-322e-student
+#| eval: false
+
+houses_observed_2000 <- subset(collegetown, sqft == 20)
+
+houses_observed_2000[, c("price", "sqft")]
+mean(houses_observed_2000$price)
+nrow(houses_observed_2000)
+```
+
+Compare the observed mean with the estimate and interval from part (d). Why should a mean based on very few houses be interpreted cautiously?
+
+## Final checklist
+
+Before finishing, check that you have
+
+- used the correct variable units,
+- stated both $H_0$ and $H_1$,
+- selected the correct tail or tails,
+- compared the p-value with the stated significance level,
+- written “reject” or “do not reject,” and
+- interpreted the result in its economic context.
