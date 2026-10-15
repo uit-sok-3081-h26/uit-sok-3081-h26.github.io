@@ -1,0 +1,1594 @@
+---
+title: "Chapter 5: The Multiple Regression Model"
+subtitle: "Prices, advertising, and the evidence behind a decision"
+author: "Eirik Eriksen Heen"
+lang: en
+format:
+  beamer:
+    pdf-engine: xelatex
+    aspectratio: 43
+    fontsize: 9pt
+    slide-level: 2
+    theme: default
+    navigation: empty
+    keep-tex: true
+filters:
+  - lecture-pdf.lua
+include-in-header:
+  text: |
+    \setbeamertemplate{footline}[frame number]
+    \setbeamertemplate{navigation symbols}{}
+    \setbeamerfont{caption}{size=\scriptsize}
+execute:
+  echo: false
+  warning: true
+  error: false
+references:
+  - id: hill2018
+    type: book
+    title: "Principles of Econometrics"
+    author:
+      - family: Hill
+        given: "R. Carter"
+      - family: Griffiths
+        given: "William E."
+      - family: Lim
+        given: "Guay C."
+    edition: "5"
+    publisher: Wiley
+    issued:
+      year: 2018
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# Two 45-minute sessions; the script downloads Andy data and uses tidyverse.
+# Figure 5.1 uses an existing course asset. Render with document-relative paths.
+# Book exercises will be selected later. References are included in the YAML.
+# Isolate the student script's rm(list = ls()) from Quarto's working environment.
+lecture_env <- new.env(parent = globalenv())
+sys.source("S17_ch05_multiple_regression.R", envir = lecture_env)
+list2env(as.list(lecture_env), envir = environment())
+fmt <- function(x, digits = 3) formatC(x, format = "f", digits = digits)
+r23 <- cor(andy$price, andy$advert)
+```
+
+# Session 1: Holding other variables constant {#sec-session-one}
+
+## Andy's decision {#sec-anchor}
+
+You work in the **economics department at Big Andy's Burger Barn**.
+
+Management wants to increase monthly sales revenue. Your team has data
+on prices, advertising expenditure, and sales from `r N` cities.
+
+You have been asked:
+
+**Should we reduce our prices or spend more on advertising?**
+
+- Predict the sign of each relationship with sales revenue.
+- What evidence would you need before giving advice?
+
+::: notes
+Opening, approximately 2 minutes. Invite students to take the role of
+the company's economics team. Let students commit to an initial answer.
+Keep two questions separate: what increases revenue, and what increases
+profit? Do not resolve the decision yet. The lecture returns to this
+question in both sessions. The example and estimates follow Hill,
+Griffiths and Lim, Chapter 5.
+:::
+
+::: r-script-ref
+R script · Part 1: Data and the question
+:::
+
+## Prices and sales: a first look {#sec-price-plot}
+
+```{r}
+#| label: fig-raw-price
+#| fig-cap: "Sales and price, with a simple OLS regression line"
+#| fig-alt: "Observed sales are plotted against price. A downward sloping OLS line summarises the raw relationship, without controlling for advertising."
+#| fig-width: 9
+#| fig-height: 4.5
+#| out-width: "85%"
+
+price_plot
+```
+
+**What does the line suggest about price and sales revenue?**
+
+::: notes
+Approximately 1.5 minutes. One dot is one city. The line minimises the
+sum of squared vertical distances and summarises the price-only
+relationship. Ask for the direction, then the interpretation.
+Advertising has not been held constant. This is a useful first
+description, but we have not yet separated the price relationship from
+other influences on sales.
+:::
+
+::: r-script-ref
+R script · Part 1: Price plot
+:::
+
+## Advertising and sales: a first look {#sec-advert-plot}
+
+```{r}
+#| label: fig-raw-advertising
+#| fig-cap: "Sales and advertising, with a simple OLS regression line"
+#| fig-alt: "Observed sales are plotted against advertising expenditure. An upward sloping OLS line summarises the raw relationship, without controlling for price."
+#| fig-width: 9
+#| fig-height: 4.5
+#| out-width: "85%"
+
+advert_plot
+```
+
+**Does this line tell us what happens when price is held constant?**
+
+::: notes
+Approximately 1.5 minutes. The simple fitted line suggests a positive
+raw relationship. Price varies across the observations as well. Ask
+students why two separate scatterplots do not yet isolate the two
+partial effects. This question leads directly to the next slide.
+:::
+
+::: r-script-ref
+R script · Part 1: Advertising plot
+:::
+
+## From one explanatory variable to two {#sec-bridge}
+
+Each graph describes sales using **one explanatory variable**.
+
+$$
+SALES_i=\beta_1+\beta_2 PRICE_i+e_i
+$$
+
+**If advertising varies across cities, where does its influence go?**
+
+Our next model includes price **and** advertising together.
+
+::: notes
+Approximately 2 minutes. Link the two preceding graphs and Chapters 2–4
+to §5.1. Advertising is part of the error in the price-only model. If it
+is related to price, the price coefficient can mix the two
+relationships. Under a positive advertising effect and positive
+price-advertising covariance, the simple-regression price slope is
+shifted upward relative to the multiple-regression price slope. Present
+this as a conceptual prediction, not a large numerical effect in the
+Andy data.
+:::
+
+::: r-script-ref
+R script · Part 1: Compare the two simple regressions
+:::
+
+## What we will be able to do {#sec-outcomes}
+
+- Interpret a coefficient with other explanatory variables held
+  constant.
+- Calculate revenue changes and assess their uncertainty.
+- Interpret marginal effects in models with squares and interactions.
+
+**Prior knowledge:** fitted values, residuals, OLS, confidence
+intervals, and hypothesis tests from Chapters 2–4.
+
+::: notes
+Reading: §§5.1–5.6. §5.7 provides the large-sample bridge; Appendices
+5A–5D are reference material. Students do not need to memorise
+multivariate OLS formulas or derive the delta method. This slide is a
+brief orientation, not a separate activity. Keep the first 8 minutes for
+the scenario, the two raw graphs, and the connection.
+:::
+
+## The data and their units {#sec-data}
+
+`r N` cities with Big Andy's Burger Barn restaurants.
+
+| Variable | Meaning                         | Unit             |
+|:---------|:--------------------------------|:-----------------|
+| `sales`  | Monthly sales revenue           | Thousand dollars |
+| `price`  | Price index                     | Dollars          |
+| `advert` | Monthly advertising expenditure | Thousand dollars |
+
+: Andy data, textbook Example 5.1
+
+**Sales revenue is not profit.** Production costs are not observed here.
+
+::: notes
+R script §1. Emphasise the distinction between price and quantity: SALES
+measures revenue. A negative revenue-price slope is compatible with
+elastic demand under the model's economic interpretation. It is not
+itself an estimated demand elasticity. Source: @hill2018, §5.1 and
+Example 5.1.
+:::
+
+::: r-script-ref
+R script · Part 1: Data and units
+:::
+
+## The multiple regression model {#sec-model}
+
+$$
+SALES_i=\beta_1+\beta_2 PRICE_i+\beta_3 ADVERT_i+e_i
+$$ {#eq-sales-model}
+
+If $E(e_i\mid\mathbf X)=0$:
+
+$$ 
+E(SALES_i\mid\mathbf X) =\beta_1+\beta_2 PRICE_i+\beta_3
+ADVERT_i
+$$
+
+or
+
+$$
+E(SALES_i\mid PRICE_i, ADVERT_i)=\beta_1+\beta_2 PRICE_i+\beta_3 ADVERT_i 
+$$
+
+$e_i$ captures influences on sales that the model does not include.
+
+In the book's general notation: $y_i=SALES_i$, $x_{i2}=PRICE_i$, and
+$x_{i3}=ADVERT_i$.
+
+::: notes
+§§5.1.1–5.1.3. X contains all observed regressors and the intercept.
+With independent random sampling, conditional mean zero can be written
+using the city's own regressors. Write competitors' prices, location,
+and local demand in the unused space. A population coefficient is beta;
+an estimated coefficient is b. All regression models are conditional on
+the included regressors. The model is linear in the coefficients, not
+necessarily in the variables.
+:::
+
+::: r-script-ref
+R script · Part 2: The multiple regression model
+:::
+
+## From a line to a plane {#sec-plane}
+
+![The multiple regression plane, reproduced from textbook Figure
+5.1.](Figure%205.1.png){#fig-regression-plane width=80% height=55mm
+fig-alt="A cloud of sales observations surrounds a plane. The plane has a separate slope in the price direction and in the advertising direction. A vertical distance from a point to the plane represents an error."}
+
+::: notes
+Source: @hill2018, Figure 5.1. Annotate the price direction, the
+advertising direction, and a vertical error. This is a conceptual
+population plane, not a newly estimated plot. Ask: when price changes
+and advertising is fixed, which direction do we move? Refer to
+@fig-regression-plane.
+:::
+
+## Holding advertising constant {#sec-price-effect}
+
+Compare two settings with the **same advertising expenditure**:
+
+$PRICE_1=PRICE_0+\Delta PRICE$; advertising remains $ADVERT_0$.
+
+$$
+\begin{aligned}
+y_0&=\beta_1+\beta_2 PRICE_0+\beta_3 ADVERT_0\\
+y_1&=\beta_1+\beta_2 PRICE_1+\beta_3 ADVERT_0
+\end{aligned}
+$$
+
+Subtract the first expression from the second:
+
+$$
+y_1-y_0=\underline{\hspace{5cm}}
+$$
+
+::: notes
+Board work: cancel the intercept and advertising terms to get
+E(y_1)-E(y_0) = beta_2 Delta PRICE. Here y denotes sales; the
+expectations compare the two specified price-advertising settings. The
+analogous advertising calculation holds price fixed. Holding a variable
+fixed is a model comparison; it does not mean that all sampled cities
+literally have identical advertising. This algebra establishes the
+coefficient interpretation in §5.1.2.
+:::
+
+::: r-script-ref
+R script · Part 2: Interpret the price coefficient
+:::
+
+## What allows a causal interpretation? {#sec-exogeneity}
+
+$$
+E(e_i\mid\mathbf X)=0
+$$
+
+After conditioning on the included variables, the remaining influences
+must have zero conditional mean.
+
+**Suppose a competitor responds whenever Andy changes his price.**
+
+Can the price coefficient isolate Andy's price effect if the
+competitor's price is omitted?
+
+::: notes
+§5.1.2 and MR2 in §5.1.4. Expected answer: generally no. The omitted
+competitor price affects sales and can be related to Andy's price.
+Including advertising alone does not establish exogeneity. Adding a
+relevant control can help, but does not automatically make the new error
+exogenous. Use conditional association language for estimates unless
+causal assumptions can be defended. Return briefly to this issue at the
+end of Session 1.
+:::
+
+## OLS fits the plane {#sec-ols}
+
+Choose coefficients that minimise the squared vertical distances:
+
+$$
+\begin{aligned}
+S(\beta_1,\beta_2,\beta_3)
+&=\sum_{i=1}^{N}\left(y_i-\hat{y}_i\right)^2 \\
+&=\sum_{i=1}^{N}\left(y_i-\beta_1-\beta_2x_{i2}-\beta_3x_{i3}\right)^2
+\end{aligned}
+$$ {#eq-ols-objective}
+
+```{r}
+#| label: fit-model-code
+#| echo: true
+#| eval: false
+
+model <- lm(sales ~ price + advert, data = andy)
+```
+
+**Intuition:** choose one plane that keeps the overall squared errors
+small.
+
+::: notes
+R script §2; textbook §5.2.1. Distinguish the function of candidate beta
+values from its minimised value at the estimated b values. No matrix
+derivation is required. lm includes an intercept by default.
+:::
+
+::: r-script-ref
+R script · Part 2: Estimate the model
+:::
+
+## The estimated coefficients {#sec-estimates}
+
+```{r}
+#| label: tbl-coefficients
+#| tbl-cap: "OLS estimates and conventional standard errors"
+
+knitr::kable(coefficient_table, digits = 3)
+```
+
+With advertising fixed, a 10-cent price reduction corresponds to an
+estimated revenue increase of **`r fmt(1000 * price_cut_gain, 0)`
+dollars**.
+
+With price fixed, an additional 1,000 dollars of advertising corresponds
+to **`r fmt(1000 * advert_gain, 0)` dollars** more revenue.
+
+::: notes
+Example 5.2. Ask for the unit conversion before displaying the result.
+The intercept describes price = advertising = 0, which is outside the
+sample and not economically credible. We retain an intercept to fit the
+relationship over the observed range. These are conditional
+associations; causal language needs the exogeneity argument.
+:::
+
+::: r-script-ref
+R script · Part 2: Coefficients and revenue changes
+:::
+
+## A prediction by hand {#sec-prediction}
+
+Price: 5.50 dollars. Advertising: 1,200 dollars.
+
+$$
+\widehat{SALES}
+=`r fmt(b[1], 3)`-`r fmt(-b[2], 4)`(5.50)
++`r fmt(b[3], 4)`(1.20)
+$$
+
+```{r}
+#| label: predict-sales-code
+#| echo: true
+#| eval: false
+
+f_model <- makeFun(model)
+f_model(price = 5.50, advert = 1.20) * 1000
+```
+
+Expected monthly revenue: **`r fmt(1000 * predicted_sales, 0)`
+dollars**.
+
+::: notes
+R script §3. Calculate by hand before running R. The prediction uses the
+full-precision coefficients; hand calculations using rounded values may
+differ slightly. It is a prediction of the conditional mean, not a
+guarantee for a particular city's realised sales. Example 5.2.
+:::
+
+::: r-script-ref
+R script · Part 3: Predict sales with makeFun()
+:::
+
+## One residual, then all residuals {#sec-residuals}
+
+$$
+\hat e_i=SALES_i-\widehat{SALES}_i
+$$ {#eq-residual}
+
+For the first city:
+
+$$
+\hat e_1=`r fmt(residual_example$Observed, 1)`-
+`r fmt(residual_example$Fitted, 3)`
+=`r fmt(residual_example$Residual, 3)`
+$$
+
+The city is `r fmt(abs(residual_example$Residual), 3)` thousand dollars
+**below** the fitted plane.
+
+::: notes
+R script §4. Annotate the vertical distance on the plane. An error e_i
+is unobserved; the fitted residual e-hat_i can be calculated. Use the
+actual first-city sign rather than assuming every residual is positive.
+:::
+
+## Sum of squared errors: mathematics and R {#sec-sse}
+
+$$
+SSE=\sum_{i=1}^{N}\hat e_i^2=\sum_{i=1}^{N}\left(y_i-\hat{y_i}\right)^2
+$$ {#eq-sse}
+
+```{r}
+#| label: sse-code
+#| echo: true
+#| eval: false
+
+e_hat <- residuals(model)
+SSE <- sum(e_hat^2)
+```
+
+$SSE = `r fmt(SSE, 3)`$ in squared thousand-dollar units.
+
+**Intuition:** squaring prevents cancellation and gives greater weight
+to large residuals.
+
+::: notes
+Connect @eq-sse with @eq-ols-objective evaluated at the OLS estimates.
+SSE is not measured in dollars, and it is not the sum of absolute
+errors. Ask what would happen if we simply added signed residuals.
+:::
+
+::: r-script-ref
+R script · Part 4: Sum of squared errors
+:::
+
+## Error variance and degrees of freedom {#sec-error-variance}
+
+$$
+\hat\sigma^2=\frac{SSE}{N-K}
+=\frac{`r fmt(SSE, 3)`}{`r N`-`r K`}
+=`r fmt(sigma2_hat, 3)`
+$$ {#eq-error-variance}
+
+```{r}
+#| label: error-variance-code
+#| echo: true
+#| eval: false
+
+K <- length(coef(model))
+sigma2_hat <- SSE / df.residual(model)
+```
+
+$K$ counts **all coefficients, including the intercept**.
+
+::: notes
+§5.2.2. N-K = 72. The fitted residuals satisfy K independent linear
+restrictions; estimating the coefficients uses degrees of freedom. Under
+the classical assumptions, N-K rather than N gives the unbiased error
+variance estimator. Its square root is the residual standard error, here
+approximately 4.886 thousand dollars. It is not a coefficient's standard
+error.
+:::
+
+::: r-script-ref
+R script · Part 4: Error variance and degrees of freedom
+:::
+
+## Explained and unexplained variation {#sec-fit}
+
+**SST: total sum of squares.** It measures variation in sales around the
+sample mean, before using price or advertising to predict sales.
+
+$$
+SST=\sum_{i=1}^{N}(SALES_i-\overline{SALES})^2
+$$
+
+$$
+R^2=\frac{SSR}{SST}=1-\frac{SSE}{SST},\qquad SST=SSR+SSE
+$$ {#eq-r-squared}
+
+**SSR:** explained sum of squares. **SSE:** unexplained sum of squares.
+
+::: notes
+Approximately 1 minute. SST means total sum of squares; SSR means sum of
+squares due to regression; SSE means sum of squared errors. These are
+the textbook's abbreviations. The decomposition requires an intercept in
+the OLS model. The numerator SSR is sum_i (y_hat_i - y_bar)\^2. Write a
+simple diagram: total variation = explained variation + residual
+variation.
+:::
+
+::: r-script-ref
+R script · Part 4: SST and R-squared
+:::
+
+## What does 44.8% explained mean? {#sec-fit-interpretation}
+
+```{r}
+#| label: r-squared-code
+#| echo: true
+#| eval: false
+
+SST <- sum((andy$sales - mean(andy$sales))^2)
+R_squared <- 1 - SSE / SST
+```
+
+$R^2=`r fmt(R_squared, 3)`$: the model explains about
+`r fmt(100 * R_squared, 1)`% of the sample variation in sales around its
+mean.
+
+Before fitting a model, sales already differed across cities. Using only
+the mean would leave all these deviations unexplained.
+
+Price and advertising account for about **44.8%** of that variation;
+about **55.2%** remains unexplained.
+
+**We can explain some variation, but not all of it.**
+
+::: notes
+Approximately 1 minute. §5.2.3. Suggested explanation: "Before we built
+the model, the restaurants already had different monthly sales. SST adds
+up the squared differences from average sales. Once we use price and
+advertising, our predictions account for 44.8% of that original
+variation. The remaining 55.2% is still in the residuals. Other
+influences and random variation remain." Explained here describes
+statistical fit in this sample. A larger R-squared does not establish
+causality or profitable advertising. Adding regressors cannot raise the
+minimised SSE for nested OLS models fitted to the same observations, so
+ordinary R-squared cannot decrease. That alone does not justify the
+added variable. Connect this warning to later specification.
+:::
+
+::: r-script-ref
+R script · Part 4: Interpret R-squared
+:::
+
+## What does controlling for price actually do? {#sec-fwl-intuition}
+
+We want to compare advertising and sales **after accounting for price
+differences**.
+
+- **Advertising:** is this city advertising more or less than its price
+  predicts?
+- **Sales:** are its sales higher or lower than its price predicts?
+
+We then ask whether these two departures are related.
+
+::: notes
+Approximately 3 minutes. Suggested spoken explanation:
+
+"Our cities have different prices. Some of the differences in sales may
+therefore be related to price. Before comparing sales with advertising,
+we first predict each city's sales using price alone. The residual tells
+us how much higher or lower its sales are than that prediction.
+
+We do the same thing for advertising. We predict advertising from price
+and keep the residual. This tells us whether a city advertises more or
+less than we would predict from its price.
+
+Now we compare these two residuals. Do cities with more advertising than
+their price predicts also have higher sales than their price predicts?
+The slope of that comparison is exactly the advertising coefficient in
+the multiple regression. This is what FWL makes visible."
+
+Pause after each prediction and point to the residual: observed minus
+predicted. Removing price from only sales would not implement the full
+FWL comparison; we must also remove it from advertising. This is a
+linear adjustment using the sample. It does not require literally
+finding cities with identical prices, and it does not establish
+causality.
+
+If a student asks "Are we deleting observations?", answer: no, all 75
+cities remain; we are comparing their deviations from fitted price
+relationships.
+:::
+
+::: r-script-ref
+R script · Part 5: Holding price constant
+:::
+
+## Controlling for price: the three regressions {#sec-fwl-steps}
+
+Remove the linear relationship with price from **both** variables:
+
+```{r}
+#| label: fwl-code
+#| echo: true
+#| eval: false
+
+sales_net_price <- residuals(lm(sales ~ price, data = andy))
+advert_net_price <- residuals(lm(advert ~ price, data = andy))
+fwl_model <- lm(sales_net_price ~ advert_net_price - 1)
+```
+
+The last regression uses variation remaining after price and the
+intercept have been removed.
+
+::: notes
+Approximately 2 minutes. R script §5; §5.2.4. Explain the two residual
+variables before running the final regression. Residualised advertising
+is unusually high or low advertising relative to its linear prediction
+from price. Read the code in three steps: (1) sales residuals, (2)
+advertising residuals, (3) regress one set of residuals on the other.
+The coefficient is in the original units: thousand dollars of sales per
+thousand dollars of advertising, with the linear price relationship
+removed.
+:::
+
+::: r-script-ref
+R script · Part 5: The three FWL regressions
+:::
+
+## The partial relationship {#sec-fwl-figure}
+
+```{r}
+#| label: fig-partial-relationship
+#| fig-cap: "Sales and advertising after removing their linear relationships with price"
+#| fig-alt: "Residualised sales are plotted against residualised advertising. An upward regression line through the origin has the same advertising slope as the full multiple regression."
+#| fig-width: 9
+#| fig-height: 4.5
+#| out-width: "85%"
+
+fwl_plot
+```
+
+Slope: **`r fmt(fwl_coefficient, 4)`**, identical to the advertising
+coefficient in the full model.
+
+::: notes
+Approximately 2 minutes. The Frisch-Waugh-Lovell theorem. Compare the
+two coefficients and the residuals. The partial regression has no
+intercept because both residual variables already have mean zero. Ask
+which variation identifies the advertising slope. The figure in
+@fig-partial-relationship is generated from the same data and
+computations as the script.
+:::
+
+::: r-script-ref
+R script · Part 5: The partial relationship plot
+:::
+
+## The assumptions behind the results {#sec-assumptions}
+
+We now examine **MR1–MR6 one at a time**.
+
+Each condition answers a different question about the model, the
+unobserved influences on sales, or the information in our data.
+
+::: notes
+§5.1.4. Allow approximately 9 minutes for this introduction and the six
+individual slides. Reuse simple-regression ideas, but say exactly what
+changes when there are several regressors. Put each formula next to its
+practical implication for Andy. Under MR1–MR5, OLS is BLUE; MR6 supplies
+the exact small-sample distributions used in Session 2.
+:::
+
+## MR1: The econometric model {#sec-mr-one}
+
+$$
+y_i=\beta_1+\beta_2x_{i2}+\beta_3x_{i3}+e_i
+$$
+
+$y_i=SALES_i$, $x_{i2}=PRICE_i$, $x_{i3}=ADVERT_i$.
+
+The model is **linear in the coefficients**.
+
+It can include a squared variable such as $ADVERT_i^2$ and still be
+linear in the coefficients.
+
+::: notes
+Approximately 1 minute. MR1 specifies a common population relationship
+for the observations. Relate it directly to the plane we estimated.
+Linearity in beta means that a coefficient is not squared or multiplied
+by another unknown coefficient. Transforming a measured variable does
+not by itself prevent OLS estimation. Functional form determines the
+interpretation of coefficients and marginal effects.
+:::
+
+## MR2: Strict exogeneity {#sec-mr-two}
+
+$$
+E(e_i\mid\mathbf X)=0
+$$
+
+Given the included regressors, the remaining influences on sales have
+**zero conditional mean**.
+
+**Andy example:** omitted competitor prices may affect sales and be
+related to Andy's own price.
+
+::: notes
+Approximately 1.5 minutes. X includes all observed regressors. In an
+independently sampled cross section, we can condition on the
+observation's own regressors. The substantive issue is that the error
+must not have a predictable mean related to price or advertising.
+Competitor responses can violate this condition. It is needed for
+unbiasedness and for the causal interpretation used in the textbook's
+economic discussion. The fitted residuals summing to zero does not
+demonstrate MR2: that is an OLS identity, while MR2 concerns unobserved
+population errors.
+:::
+
+## MR3: Conditional homoskedasticity {#sec-mr-three}
+
+$$
+\operatorname{var}(e_i\mid\mathbf X)=\sigma^2
+$$
+
+The spread of sales around the regression plane is constant across price
+and advertising settings.
+
+**What if prediction errors are much more variable at high advertising
+levels?**
+
+::: notes
+Approximately 1 minute. Draw two cross-sections through the plane with
+equal vertical error spread. Then draw a widening spread. The second
+pattern suggests heteroskedasticity. This condition concerns the
+variation remaining around the conditional mean, not whether raw sales
+are equally variable in every city. Together with the other classical
+assumptions, it underpins the conventional variance formulas and BLUE.
+Without it, the coefficient estimates may still be unbiased under MR2,
+but conventional standard errors may be inappropriate.
+:::
+
+## MR4: Conditionally uncorrelated errors {#sec-mr-four}
+
+$$
+\operatorname{cov}(e_i,e_j\mid\mathbf X)=0,\qquad i\ne j
+$$
+
+An unobserved sales shock in one city does not systematically move
+together with the error in another city, conditional on the regressors.
+
+**Could a common local demand shock affect several nearby restaurants?**
+
+::: notes
+Approximately 1 minute. A common unobserved regional shock is a
+plausible violation. Explain the difference from MR3: MR3 concerns the
+variance of one error; MR4 concerns covariance between two different
+errors. For time-series observations, this would rule out serial
+correlation. Error correlation matters for the conventional standard
+errors even if the conditional mean-zero assumption is defensible.
+:::
+
+## MR5: No exact linear relationship among regressors {#sec-mr-five}
+
+No explanatory variable can be written as an **exact linear
+combination** of the others, including the constant.
+
+Suppose every city satisfies:
+
+$$
+ADVERT_i=2\,PRICE_i
+$$
+
+Can we separately identify the price and advertising coefficients?
+
+::: notes
+Approximately 1 minute. No. Substitution gives the combined coefficient
+beta_2 + 2 beta_3 on PRICE; the data cannot distinguish its two
+components. There is no independent advertising variation after
+controlling for price. We need regressor variation to separate the
+slopes. High but imperfect correlation is different: OLS may exist, but
+estimates can be imprecise. A squared regressor does not automatically
+violate MR5; the restriction rules out exact linear dependence among the
+observed columns.
+:::
+
+## MR6: Conditionally normal errors {#sec-mr-six}
+
+$$
+e_i\mid\mathbf X\sim N(0,\sigma^2)
+$$
+
+At given regressor settings, errors around the regression plane are
+normally distributed.
+
+With MR1–MR5, this gives **exact small-sample** $t$ inference.
+
+Normality is optional for the Gauss–Markov result.
+
+::: notes
+Approximately 1 minute. The normality assumption concerns the errors
+conditional on X. Price and advertising do not themselves need normal
+distributions. Draw a bell shape around a fixed point on the plane.
+Without MR6, suitable large-sample approximations can support inference,
+but they are not a universal guarantee for every sample size. Connect
+this slide to the standard errors and t distributions in Session 2.
+:::
+
+## Before the break {#sec-session-one-exit}
+
+An adviser says:
+
+> “We included advertising, so the price coefficient must be causal.”
+
+**What is missing from this argument?**
+
+Then explain why a negative price coefficient does not justify reducing
+the price all the way to zero.
+
+::: notes
+Answers: including a control does not establish conditional mean zero;
+relevant omitted influences may remain. Extrapolation is another
+problem: sample prices range from the script's observed minimum to
+maximum, approximately 4.83 to 6.49 dollars. A linear approximation over
+that range is not a credible revenue model at zero price. Single most
+important Session 1 idea: coefficient interpretation depends on what is
+held fixed and on the assumptions about the remaining error.
+:::
+
+# Session 2: From estimates to a decision {#sec-session-two}
+
+## Is a positive estimate enough? {#sec-session-two-hook}
+
+Estimated advertising coefficient: **`r fmt(b["advert"], 3)`**.
+
+An additional 1,000 dollars of advertising corresponds to about
+`r fmt(1000 * advert_gain, 0)` dollars more revenue.
+
+**Would you advise Andy to spend more?**
+
+What could uncertainty change about your recommendation?
+
+::: notes
+Session 2, minutes 0–3. Retrieve the units and ceteris paribus
+interpretation. Ask for a decision before showing tests. Students should
+distinguish a point estimate from precision and recognise that
+production costs still matter.
+:::
+
+::: r-script-ref
+R script · Review of Part 2: Advertising coefficient
+:::
+
+## Sample correlation {#sec-regressor-correlation}
+
+$$
+r_{23}=
+\frac{\sum_i(x_{i2}-\bar x_2)(x_{i3}-\bar x_3)}
+{\sqrt{\sum_i(x_{i2}-\bar x_2)^2\sum_i(x_{i3}-\bar x_3)^2}}
+$$
+
+How much does **price and advertising vary together** relative to their
+separate variation?
+
+$r_{23}$ ranges from $-1$ to $1$; $r_{23}^2$ ranges from $0$ to $1$.
+
+It is also the $R^2$ from a **simple regression of price on
+advertising** with an intercept.
+
+It measures how much of the price variation is linearly shared with
+advertising.
+
+::: notes
+Approximately 2 minutes. Begin with the variable indices: the intercept
+has index 1, PRICE has index 2, and ADVERT has index 3. Therefore r_23
+is the sample correlation between price and advertising. The numerator
+measures their joint deviations from their means; the denominator
+standardises it by each variable's variation.
+
+Squaring removes the sign: a strong negative relationship also makes
+separate effects hard to estimate. In a simple regression with an
+intercept, the squared sample correlation is the auxiliary regression's
+R-squared. This auxiliary regression has PRICE as its dependent
+variable; it is different from the SALES model's R-squared discussed in
+Session 1.
+:::
+
+::: r-script-ref
+R script · Part 6: Correlation between price and advertising
+:::
+
+## What determines precision? {#sec-precision}
+
+For a model with price and advertising:
+
+$$
+\operatorname{var}(b_2\mid\mathbf X)
+=\frac{\sigma^2}
+{(1-r_{23}^2)\sum_{i=1}^{N}(PRICE_i-\overline{PRICE})^2}
+$$ {#eq-coefficient-variance}
+
+$x_2=PRICE$, $x_3=ADVERT$; $r_{23}$ is their sample correlation.
+
+- More noise makes the estimate less precise.
+- More independent price variation makes it more precise.
+- Strong price-advertising correlation makes separate effects harder to
+  identify.
+
+::: notes
+§5.3.1; R script §6. r_23 is the sample correlation between price and
+advertising. Holding other ingredients fixed, increasing \|r_23\| raises
+the variance. Annotate the numerator and both denominator factors. In
+larger models, the analogous term uses the R-squared from regressing the
+target regressor on all other regressors. Do not claim high collinearity
+in this particular dataset. More observations help when they provide
+additional informative variation.
+:::
+
+::: r-script-ref
+R script · Part 6: Correlation and standard errors
+:::
+
+## Independent variation and precision {#sec-independent-variation}
+
+In the variance formula, the denominator is
+
+$$
+\underbrace{(1-r_{23}^2)}_{\text{share remaining after advertising}}
+\underbrace{\sum_i(PRICE_i-\overline{PRICE})^2}_{\text{total price variation}}.
+$$
+
+- If $r_{23}^2$ is near 0, most price variation remains available.
+- If $r_{23}^2$ is near 1, little remains to identify a separate price
+  effect.
+
+For Andy: $r_{23}=`r fmt(r23, 3)`$ and $r_{23}^2=`r fmt(r23^2, 4)`$.
+
+::: notes
+Approximately 1 minute. Return to @eq-coefficient-variance. Holding
+noise and total price variation fixed, a smaller denominator raises the
+coefficient variance. The denominator is the sum of squared residuals
+from regressing PRICE on an intercept and ADVERT. This is the same
+independent-variation idea illustrated by FWL. Andy has very little
+linear price-advertising correlation, so do not claim the dataset
+exhibits a severe collinearity problem. Hypothetical values can
+illustrate the mechanism: r=.9 gives 1-r\^2=.19, while r=0 gives 1. The
+sign of r does not affect this variance factor.
+:::
+
+::: r-script-ref
+R script · Part 6: Correlation between the regressors
+:::
+
+## The coefficient covariance matrix {#sec-covariance-structure}
+
+For $b_1$ (intercept), $b_2$ (price), and $b_3$ (advertising):
+
+$$
+\begin{pmatrix}
+\widehat{\operatorname{var}}(b_1) & \widehat{\operatorname{cov}}(b_1,b_2) & \widehat{\operatorname{cov}}(b_1,b_3)\\
+\widehat{\operatorname{cov}}(b_2,b_1) & \widehat{\operatorname{var}}(b_2) & \widehat{\operatorname{cov}}(b_2,b_3)\\
+\widehat{\operatorname{cov}}(b_3,b_1) & \widehat{\operatorname{cov}}(b_3,b_2) & \widehat{\operatorname{var}}(b_3)
+\end{pmatrix}
+$$
+
+**Diagonal:** each coefficient estimate's variance.
+
+**Off diagonal:** covariances between coefficient estimates.
+
+::: notes
+Approximately 1.5 minutes. §5.3.1. Draw a box around the diagonal. The
+matrix describes the sampling variation of the estimates, not the raw
+covariance of PRICE and ADVERT. Across hypothetical repeated samples,
+all three coefficient estimates vary. The off-diagonal entries record
+how their estimation errors move together. The matrix is symmetric:
+cov(b_2,b_3) = cov(b_3,b_2). Conditioning on X is implicit in the
+displayed conventional estimates. No matrix algebra derivation is
+needed.
+:::
+
+::: r-script-ref
+R script · Part 6: The coefficient covariance matrix
+:::
+
+## Andy's estimated covariance matrix {#sec-covariance-numbers}
+
+Rows and columns: **intercept, price, advertising**.
+
+$$
+\begin{pmatrix}
+`r fmt(V[1,1], 4)` & `r fmt(V[1,2], 4)` & `r fmt(V[1,3], 4)`\\
+`r fmt(V[2,1], 4)` & `r fmt(V[2,2], 4)` & `r fmt(V[2,3], 4)`\\
+`r fmt(V[3,1], 4)` & `r fmt(V[3,2], 4)` & `r fmt(V[3,3], 4)`
+\end{pmatrix}
+$$
+
+```{r}
+#| label: covariance-matrix-code
+#| echo: true
+#| eval: false
+
+vcov(model)
+```
+
+For advertising:
+$se(b_3)=\sqrt{`r fmt(V[3,3], 4)`}=`r fmt(advert_se, 4)`$.
+
+::: notes
+Approximately 1.5 minutes. Example 5.5. Point to the third diagonal
+entry and take its square root. This is the advertising standard error
+reported beside b_3 in summary(model). The price-advertising covariance
+is the row-2, column-3 entry, approximately -.0197. Later, when price
+and advertising change together, this entry enters the uncertainty
+calculation. A negative coefficient covariance is not a claim that the
+underlying economic effects must offset one another. Keep estimates
+unrounded for calculations; displayed matrix entries are rounded.
+:::
+
+::: r-script-ref
+R script · Part 6: vcov(model)
+:::
+
+## Standard errors describe sampling uncertainty {#sec-standard-errors}
+
+$$
+se(b_k)=\sqrt{\widehat{\operatorname{var}}(b_k)}
+$$
+
+```{r}
+#| label: standard-error-code
+#| echo: true
+#| eval: false
+
+V <- vcov(model)
+sqrt(diag(V))
+```
+
+Advertising SE: **`r fmt(advert_se, 4)`**.
+
+Another sample would generally produce another coefficient estimate.
+
+::: notes
+§§5.3.1–5.3.2. The diagonal contains variances; off-diagonal entries
+contain covariances. Distinguish residual standard error from
+coefficient standard error. Under MR1–MR6, (b_k-beta_k)/se(b_k) follows
+t(N-K). Keep the distributional derivation as reference material.
+:::
+
+::: r-script-ref
+R script · Part 6: The advertising standard error
+:::
+
+## A confidence interval for advertising {#sec-advert-ci}
+
+$$
+b_3\pm t_{0.975,N-K}\,se(b_3)
+$$ {#eq-confidence-interval}
+
+$$
+`r fmt(b["advert"], 4)`\pm`r fmt(tc95, 4)`\times`r fmt(advert_se, 4)`
+$$
+
+```{r}
+#| label: confidence-interval-code
+#| echo: true
+#| eval: false
+
+confint(model, "advert", level = 0.95)
+```
+
+95% interval: **\[`r fmt(ci95["advert", 1], 3)`,
+`r fmt(ci95["advert", 2], 3)`\]**.
+
+::: notes
+§5.4.1, Example 5.6. Work out the endpoints before running R. The
+associated mean revenue increase for 1,000 dollars of extra advertising
+is approximately 501 to 3,225 dollars. The interval covers 1 as well as
+values substantially above 1. In repeated sampling, 95% of intervals
+from this procedure contain the fixed population coefficient, under the
+assumptions.
+:::
+
+::: r-script-ref
+R script · Part 6: Confidence intervals
+:::
+
+## Two different economic claims {#sec-two-tests}
+
+| Question | Null hypothesis | Alternative |
+|:-----------------------|:-----------------------|:-----------------------|
+| Is advertising related to sales? | $\beta_3=0$ | $\beta_3\ne0$ |
+| Does extra revenue cover advertising expenditure? | $\beta_3\le1$ | $\beta_3>1$ |
+
+: Different claims require different tests
+
+**Predict:** could the data support the first claim but leave the second
+unresolved?
+
+::: notes
+§§5.5.1–5.5.2. Zero is the reference for statistical significance; one
+is the revenue-per-advertising-dollar threshold. The second test is
+one-sided and evaluated at the boundary beta_3 = 1. Neither test
+incorporates the costs of producing additional burgers. Let students
+predict before moving to the numerical results.
+:::
+
+::: r-script-ref
+R script · Part 7: Two questions, two tests
+:::
+
+## The tests give different answers {#sec-test-results}
+
+$$
+t_0=\frac{b_3}{se(b_3)},\qquad
+t_1=\frac{b_3-1}{se(b_3)}
+$$
+
+```{r}
+#| label: tbl-test-results
+#| tbl-cap: "Advertising tests using 72 residual degrees of freedom"
+
+knitr::kable(test_comparison, digits = 3)
+```
+
+At 5%, reject the zero-effect null; do not reject the cost-coverage
+null.
+
+**A significant coefficient does not establish profitable advertising.**
+
+::: notes
+R script §7. DELIBERATE MISCONCEPTION: use the p-value from
+summary(model) to prove profitability. Correction: that p-value tests
+beta=0, not beta\>1. Do not reject does not mean beta\<=1 has been
+proved. The dataset does not provide sufficient evidence for beta\>1 at
+5%. Values are approximately t_0=2.726, p=.008 and t_1=1.263, p=.105.
+:::
+
+::: r-script-ref
+R script · Part 7: Compare the two p-values
+:::
+
+## The test calculations in R {#sec-test-code}
+
+```{r}
+#| label: advertising-tests-code
+#| echo: true
+#| eval: false
+
+b3 <- coef(model)["advert"]
+se_b3 <- sqrt(vcov(model)["advert", "advert"])
+df <- df.residual(model)
+
+t0 <- b3 / se_b3
+2 * pt(-abs(t0), df = df)
+
+t1 <- (b3 - 1) / se_b3
+pt(t1, df = df, lower.tail = FALSE)
+```
+
+The first probability uses **both tails**; the second uses the **upper
+tail**.
+
+::: notes
+Match each code expression to its formula and economic claim. The choice
+of tail follows the hypothesis, not whichever p-value is smallest.
+Economic importance, statistical significance, and precision are
+distinct. If time is tight, use this as reference code and spend the
+time interpreting the previous table.
+:::
+
+::: r-script-ref
+R script · Part 7: Calculate the test statistics
+:::
+
+## Changing price and advertising together {#sec-policy-change}
+
+Andy cuts price by 40 cents and increases advertising by 800 dollars.
+
+$$
+\begin{aligned}
+\lambda&=E(SALES_1)-E(SALES_0)\\
+&=-0.40\beta_2+0.80\beta_3
+\end{aligned}
+$$ {#eq-policy-change}
+
+**Before calculating:** why does the intercept disappear?
+
+$$
+\hat\lambda=-0.40b_2+0.80b_3
+=`r fmt(policy_change["estimate"], 4)`
+$$
+
+::: notes
+§§5.4.2 and 5.5.3; R script §8. Subtract the two conditional mean
+equations with all other settings held fixed. Advert is in thousands of
+dollars, so 800 dollars is 0.8. The estimated increase is about 4,653
+dollars in monthly revenue. Whether a particular city realises that
+increase is another question. This is uncertainty about a mean change,
+not a prediction interval for a realised outcome.
+:::
+
+::: r-script-ref
+R script · Part 8: Change price and advertising
+:::
+
+## The covariance term matters {#sec-policy-uncertainty}
+
+$$
+\begin{aligned}
+\widehat{\operatorname{var}}(\hat\lambda)
+={}&(-0.40)^2\widehat{\operatorname{var}}(b_2)
++(0.80)^2\widehat{\operatorname{var}}(b_3)\\
+&+2(-0.40)(0.80)\widehat{\operatorname{cov}}(b_2,b_3)
+\end{aligned}
+$$ {#eq-policy-variance}
+
+```{r}
+#| label: contrast-code
+#| echo: true
+#| eval: false
+
+policy_variance <- (-0.40)^2 * var_price + 0.80^2 * var_advert +
+  2 * (-0.40) * 0.80 * cov_price_advert
+sqrt(policy_variance)
+```
+
+$se(\hat\lambda)=`r fmt(policy_change["se"], 4)`$.
+
+::: notes
+The coefficient estimates are computed from the same sample and need not
+be independent. Point out the signed cross-product: a negative
+covariance and opposite-signed weights make a positive contribution
+here. The R calculation writes out the same formula used in the hand
+calculation. The script explains how to select each variance and
+covariance from vcov(model).
+:::
+
+::: r-script-ref
+R script · Part 8: Variance of the combined change
+:::
+
+## An interval for the combined change {#sec-policy-ci}
+
+$$
+\hat\lambda\pm t_{0.95,72}\,se(\hat\lambda)
+$$
+
+90% interval for the expected revenue increase:
+
+**\[`r fmt(1000 * policy_change["lower"], 0)`,
+`r fmt(1000 * policy_change["upper"], 0)`\] dollars**.
+
+What does this add to our advice to Andy?
+
+::: notes
+Example 5.7. About 3,471 to 5,835 dollars. The interval is positive
+under the fitted linear model and its assumptions, but it is not an
+interval for profit. It also does not resolve causal identification or
+functional form. A later exercise could compare a 20-cent price cut with
+500 dollars of extra advertising (Example 5.12). That extension is
+deferred until exercises are selected.
+:::
+
+::: r-script-ref
+R script · Part 8: Confidence interval for the change
+:::
+
+## Can advertising keep working at the same rate? {#sec-nonlinear-hook}
+
+The linear model implies:
+
+$$
+\frac{\partial E(SALES\mid PRICE,ADVERT)}{\partial ADVERT}=\beta_3
+$$
+
+**Would another 1,000 dollars of advertising have the same effect at
+every initial advertising level?**
+
+What model change could represent diminishing returns?
+
+::: notes
+§5.6. Predict a positive linear advertising term and a negative squared
+term before estimating. Explain that a constant marginal effect is an
+assumption of the linear functional form, not a consequence of including
+several regressors.
+:::
+
+::: r-script-ref
+R script · Part 9: Diminishing returns
+:::
+
+## A quadratic advertising model {#sec-quadratic}
+
+$$
+\begin{aligned}
+SALES_i={}&\beta_1+\beta_2 PRICE_i+\beta_3 ADVERT_i\\
+&+\beta_4 ADVERT_i^2+e_i
+\end{aligned}
+$$ {#eq-quadratic-model}
+
+```{r}
+#| label: quadratic-model-code
+#| echo: true
+#| eval: false
+
+quadratic_model <- lm(sales ~ price + advert + I(advert^2),
+                      data = andy)
+```
+
+Nonlinear in advertising; **linear in the coefficients**.
+
+::: notes
+§5.6, Example 5.14; R script §9. I(advert\^2) tells the R formula parser
+to calculate an arithmetic square. OLS still applies because beta_4
+enters linearly. PRICE is held fixed when discussing the advertising
+effect. Do not describe beta_3 alone as the marginal effect at every A.
+:::
+
+::: r-script-ref
+R script · Part 9: Estimate the quadratic model
+:::
+
+## The advertising curve {#sec-advertising-curve}
+
+```{r}
+#| label: fig-advertising-curve
+#| fig-cap: "Sales adjusted to a fixed price of 5.50 dollars, with the fitted quadratic advertising curve"
+#| fig-alt: "Price-adjusted sales observations surround one quadratic curve that rises, flattens and then turns down over the observed advertising range."
+#| fig-width: 9
+#| fig-height: 4.5
+#| out-width: "85%"
+
+advertising_plot
+```
+
+**Where is an extra advertising dollar most effective?**
+
+::: notes
+The points are sales adjusted to a price of 5.50 using the quadratic
+model's price coefficient. geom_smooth fits one quadratic curve to these
+adjusted observations; it matches the full model's conditional mean at
+that price. The graph remains within the observed advertising range,
+0.5–3.1 thousand dollars. The relationship is a fitted conditional mean.
+The quadratic downturn illustrates the specification, not a general law
+that advertising must reduce sales at high expenditure.
+:::
+
+::: r-script-ref
+R script · Part 9: The adjusted advertising plot
+:::
+
+## A coefficient is no longer the whole marginal effect {#sec-marginal-effect}
+
+Differentiate with respect to advertising, holding price fixed:
+
+$$
+\frac{\partial E(SALES\mid PRICE,ADVERT)}{\partial ADVERT}
+=\beta_3+2\beta_4 ADVERT
+$$ {#eq-advert-marginal-effect}
+
+Estimated marginal effect:
+
+$$
+`r fmt(bq["advert"], 3)`-`r fmt(-2 * bq["I(advert^2)"], 3)`ADVERT
+$$
+
+At $ADVERT=0.5$: `r fmt(marginal_effects$Marginal_effect[1], 3)`. At
+$ADVERT=2$: `r fmt(marginal_effects$Marginal_effect[3], 3)`.
+
+::: notes
+Work through the derivative by hand. beta_3 is the slope at ADVERT=0,
+which is outside the observed range; beta_4 determines how the slope
+changes. The effects have units revenue dollars per advertising dollar.
+A derivative describes a small/local change. For a finite Delta A, the
+exact quadratic change is (beta_3+2 beta_4 A) Delta A + beta_4 (Delta
+A)\^2. Using A=1.2 and Delta A=0.8 provides a useful optional hand
+calculation.
+:::
+
+::: r-script-ref
+R script · Part 9: Calculate marginal effects
+:::
+
+## When one effect depends on another variable {#sec-interaction}
+
+An **illustrative** hourly wage model:
+
+$$
+\begin{aligned}
+WAGE&=5+1\,EDUC+0.20\,EXPER\\
+&+0.05(EDUC\times EXPER)+e
+\end{aligned}
+$$
+
+$$
+\frac{\partial E(WAGE)}{\partial EDUC}=1+0.05\,EXPER
+$$
+
+What is the effect of one more year of education at 0 and 20 years of
+experience?
+
+::: notes
+§5.6, especially Example 5.15. These coefficients are chosen for
+illustration, not estimated from wage data. Answers: 1 and 2 dollars per
+hour per additional education year. The coefficient on EDUC alone is the
+effect at zero experience. Neither estimate is causal without
+assumptions. R syntax for an estimated interaction model would be
+lm(wage \~ educ \* exper, data = wages), which includes both main
+effects. No wage dataset is required in this lecture. If discussion runs
+long, leave the log-quadratic wage model for reference reading, Example
+5.16.
+:::
+
+::: r-script-ref
+R script · Part 10: The interaction example
+:::
+
+## Andy's decision revisited {#sec-conclusion}
+
+- The estimates support a negative price relationship and a positive
+  advertising relationship over the relevant range.
+- Advertising significance does not establish cost coverage or profit.
+- Diminishing returns make the initial advertising level relevant.
+
+**Give Andy a recommendation with one explicit condition and one
+limitation.**
+
+::: notes
+A strong answer separates evidence on mean revenue from a profit
+recommendation, states exogeneity and functional-form conditions, and
+recognises uncertainty. Useful follow-up: which additional data would
+change your advice? Production costs and competitor behaviour are good
+answers. If the class is quiet, ask whether advice should differ for
+A=.5 and A=2. Optional AI audit, outside the 90-minute core: give an LLM
+the estimate 1.863, SE .683, and df 72; ask whether another 1,000
+advertising dollars is profitable. Students audit units, beta=0 versus
+beta=1, uncertainty, costs, and causality. This remains useful even if
+the LLM answers correctly.
+:::
+
+## Exit question {#sec-exit}
+
+A model contains $ADVERT$ and $ADVERT^2$.
+
+An analyst says:
+
+> “The coefficient on advertising is 12.15, so one additional
+> advertising dollar always brings 12.15 dollars in revenue.”
+
+**Correct the interpretation. What must you know before calculating the
+effect?**
+
+::: notes
+Expected answer: need the initial advertising level and the squared-term
+coefficient; the marginal effect is beta_3+2 beta_4 A. For a finite
+change, use the change in the full fitted equation, not just a
+derivative times a large change. A complete answer also states that
+price is held fixed and an effect interpretation requires exogeneity.
+Misconceptions: using beta_3 alone, confusing advertising units,
+treating revenue as profit. Next chapter: joint hypotheses,
+specification, and collinearity.
+:::
+
+# Reference material {#sec-reference}
+
+## Same coefficient, but check the standard error {#sec-fwl-caution}
+
+FWL gives the same slope and the same residuals.
+
+But the residual regression sees only **one** estimated coefficient:
+
+| Calculation | Residual degrees of freedom | Advertising SE |
+|:-----------------------|-----------------------:|-----------------------:|
+| Full model | `r residual_df` | `r fmt(advert_se, 4)` |
+| Residual regression, uncorrected | `r df.residual(fwl_model)` | `r fmt(fwl_naive_se, 4)` |
+
+: Conventional standard errors and the degrees-of-freedom correction
+
+For inference, use the full model or restore its $N-K$ correction.
+
+::: notes
+Optional reference. Useful deliberate failure: treating all
+residual-regression output as equivalent to the full model. Coefficients
+and residuals match, but the naive conventional SE uses the wrong
+variance divisor. If time is short, explain the caution without deriving
+the corrected formula. §5.2.4.
+:::
+
+::: r-script-ref
+R script · Review of Part 5: Compare FWL with the full model
+:::
+
+## Large samples and further reading {#sec-large-samples}
+
+**Consistency:** with suitable assumptions, estimates become close to
+the population coefficient with high probability as the sample grows.
+
+**Asymptotic normality:** large-sample approximations can support
+inference without normal errors.
+
+**A large sample does not automatically solve omitted-variable bias.**
+
+Reading: §5.7; Appendix 5A (OLS derivation), 5B (delta method), 5C
+(simulation), 5D (bootstrap).
+
+::: notes
+Reference slide, outside the timed core. Normal errors are not required
+for Gauss-Markov. Exact small-sample t results require stronger
+assumptions than large-sample approximations. Consistency and asymptotic
+normality also require appropriate moment, dependence, and
+regressor-variation conditions. The conventional SEs used in the main
+lecture are not made robust to heteroskedasticity or correlated errors
+simply by increasing N. Avoid a universal rule such as N=30 is enough.
+:::
+
+## Candidate advertising expenditure {#sec-optimum-reference}
+
+Ignoring additional production costs, equate marginal revenue to one
+dollar per advertising dollar:
+
+$$
+\beta_3+2\beta_4 A^*=1
+\quad\Longrightarrow\quad
+\widehat A^*=\frac{1-b_3}{2b_4}
+=`r fmt(candidate_advert, 3)`
+$$
+
+About **`r fmt(1000 * candidate_advert, 0)` dollars per month**.
+
+This is a model-based candidate, conditional on the assumptions and
+omitted costs.
+
+::: notes
+Optional reference, §5.7.4 and Example 5.17. Here b_4\<0 supplies
+concavity and the candidate lies inside the observed advertising range.
+It maximises predicted revenue minus advertising expenditure at fixed
+price, ignoring additional production costs; it is not a fully specified
+profit optimum. Uncertainty in this nonlinear coefficient ratio requires
+a delta-method or bootstrap calculation, left for later. Do not import a
+standard error for a linear combination into this calculation.
+:::
+
+::: r-script-ref
+R script · Presentation support: Candidate advertising level
+:::
+
+## Sources {#sec-sources}
+
+Chapter 5, especially §§5.1–5.6 and Examples 5.1–5.15 [@hill2018].
+
+The companion R script downloads the original Andy observations directly
+from the publisher and uses tidyverse for data preparation and graphics.
+
+[Publisher's Andy data
+file](https://www.principlesofeconometrics.com/poe5/data/rdata/andy.rdata)
+
+The plane illustration reproduces textbook Figure 5.1 from the existing
+course materials. The remaining plots use the Andy observations.
+
+::: notes
+Revised pacing, 45 minutes per session. Session 1: scenario, two raw
+graphs, and transition (8); model and coefficient interpretation (10);
+OLS, predictions, and explained variation (10); FWL (7); the six
+assumptions (9); exit question (1). The FWL standard-error caution is
+now reference material after the timed core.
+
+Session 2: retrieval (2); precision and regressor correlation (5);
+covariance matrix and standard errors (5); confidence intervals (4); the
+two advertising tests (6); combined changes (7); nonlinear effects and
+interactions (12); decision and exit question (4).
+
+If time is short, show test code as reference and let students read the
+interaction example afterward. Keep the six assumptions, the FWL
+intuition, and the final economic decision. Textbook exercises are
+deferred until the instructor selects them.
+:::
