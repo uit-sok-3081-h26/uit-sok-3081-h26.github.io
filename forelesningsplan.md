@@ -73,6 +73,7 @@
 |||  [Seminar questions norwegian](lectures/S15_ch03_seminar_student_no.qmd)|
 | 16  | 13/10   | Seminar chapter 4   |
 | 17  | 15/10   | Chapter 5   |
+|  |    | [Lecture PDF](lectures/S17_ch05_multiple_regression.pdf)   [Lecture R script](lectures/S17_ch05_multiple_regression.R)   |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=d3c5a562-fdf8-48f6-9b49-aee500c5236b)     |
 | 18 | 16/10   | Seminar chapter 5   |
 | 19 | 22/10   | Chapter 6   |
