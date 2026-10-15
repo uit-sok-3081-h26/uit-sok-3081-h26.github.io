@@ -1,0 +1,35 @@
+---
+title: "Exercise 4.16 Seminar Challenge"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    transition: fade
+    center: false
+    chalkboard: true
+    footer: "Chapter 4 | Exercise 4.16 | newbroiler"
+    width: 1280
+    height: 720
+    margin: 0.07
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+
+```{r}
+rm(list=ls())
+
+library(mosaic)
+library(tidyverse)
+
+#' The data defenition file: 
+#browseURL("http://www.principlesofeconometrics.com/poe5/data/def/newbroiler.def")
+
+# Load the data:
+load(url("http://www.principlesofeconometrics.com/poe5/data/rdata/newbroiler.rdata"))
+
+names(newbroiler)
+```
+
