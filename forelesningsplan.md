@@ -70,7 +70,7 @@
 |||[Chapter 04 seminar question one](https://uit-sok-3081-h26.github.io/chapter-04-16_seminar.html)|
 |||[Chapter 04 seminar question two](https://uit-sok-3081-h26.github.io/chapter_04_seminar.html)|
 ||||
-| | | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=befb571c-77a5-4919-b3e5-aee500c4b463)
+| | | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=befb571c-77a5-4919-b3e5-aee500c4b463)|
 | 15  | 30/09   | Seminar chapter 3  [Seminar questions english](lectures/S15_ch03_seminar_student_en.qmd) |
 |||  [Seminar questions norwegian](lectures/S15_ch03_seminar_student_no.qmd)|
 | 16  | 13/10   | Seminar chapter 4   |
