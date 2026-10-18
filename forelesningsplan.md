@@ -68,7 +68,7 @@
 |14|30/09|[Chapter 4 part 2](https://uit-sok-3081-h26.github.io/lecture-04-part2.html)|
 |||[The three models](https://uit-sok-3081-h26.github.io/three-model-challenge.html)|
 |||[Seminar exercise 1](https://uit-sok-3081-h26.github.io/chapter-04-16_seminar.html?utm_source=chatgpt.com)|
-|||[Seminar excercise 2](https://uit-sok-3081-h26.github.io/three-model-challenge.html)|
+|||[Seminar excercise 2](https://uit-sok-3081-h26.github.io/chapter_04_seminar.html)|
 ||||
 | | | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=befb571c-77a5-4919-b3e5-aee500c4b463)|
 | 15  | 30/09   | Seminar chapter 3  [Seminar questions english](lectures/S15_ch03_seminar_student_en.qmd) |
