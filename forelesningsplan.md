@@ -67,6 +67,7 @@
 |13|28/09|[Chapter 4 part 1](https://uit-sok-3081-h26.github.io/lecture-04-part1.html)|
 |14|30/09|[Chapter 4 part 2](https://uit-sok-3081-h26.github.io/lecture-04-part2.html)|
 |||[The three models](https://uit-sok-3081-h26.github.io/three-model-challenge.html)|
+|||[Chapter 04 seminar question](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/chapter-04-16_seminar.html)|
 ||||
 | | | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=befb571c-77a5-4919-b3e5-aee500c4b463)
 | 15  | 30/09   | Seminar chapter 3  [Seminar questions english](lectures/S15_ch03_seminar_student_en.qmd) |
