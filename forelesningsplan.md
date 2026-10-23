@@ -78,7 +78,8 @@
 | 17  | 15/10   | Chapter 5   |
 |  |    | [Lecture PDF](lectures/S17_ch05_multiple_regression.pdf)   [Lecture R script](lectures/S17_ch05_multiple_regression.R)   |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=d3c5a562-fdf8-48f6-9b49-aee500c5236b)     |
-| 18 | 16/10   | Seminar chapter 5   |
+| 18 | 23/10   | Seminar chapter 5  [Excersises](lectures/S18_ch05_exercises.pdf) [Excersises solutions](lectures/S18_ch05_worked_solutions.pdf) |
+|  |    | [R script work](lectures/S18_ch05_student.R) [R script complete](lectures/s18_ch5_seminar.R)  |
 | 19 | 22/10   | Chapter 6   |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=f7414982-3db6-4bb2-925b-aee500c49725)    |
 | 20 | 23/10   | Seminar chapter 6   |
