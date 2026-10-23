@@ -80,12 +80,12 @@
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=d3c5a562-fdf8-48f6-9b49-aee500c5236b)     |
 | 18 | 23/10   | Seminar chapter 5  [Excersises](lectures/S18_ch05_exercises.pdf) [Excersises solutions](lectures/S18_ch05_worked_solutions.pdf) |
 |  |    | [R script work](lectures/S18_ch05_student.R) [R script complete](lectures/s18_ch5_seminar.R)  |
-| 19 | 22/10   | Chapter 6   |
+| 19 | 26/10   | Chapter 6   |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=f7414982-3db6-4bb2-925b-aee500c49725)    |
-| 20 | 23/10   | Seminar chapter 6   |
-| 21 | 26/10   | Chapter 7   |
+| 20 | 28/10   | Seminar chapter 6   |
+| 21 | 29/10   | Chapter 7   |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=0cc6111f-0182-4bee-aa59-aee500c5110b)    |
-| 22 | 29/10   | Seminar chapter 7   |
+| 22 | ??/10   | Seminar chapter 7   |
 | 23 | 03/11   | Chapter 8   |
 | 24 | 04/11   | Seminar chapter 8   |
 | 25 | 12/11  | Summery   |
