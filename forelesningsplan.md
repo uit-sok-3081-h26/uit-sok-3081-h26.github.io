@@ -82,6 +82,7 @@
 |  |    | [R script work](lectures/S18_ch05_student.R) [R script complete](lectures/s18_ch5_seminar.R)  |
 | 19 | 26/10   | Chapter 6   |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=f7414982-3db6-4bb2-925b-aee500c49725)    |
+|||[chapter-06]|(https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/chapter06_teaching_clean.html)
 | 20 | 28/10   | Seminar chapter 6   |
 | 21 | 29/10   | Chapter 7   |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=0cc6111f-0182-4bee-aa59-aee500c5110b)    |
