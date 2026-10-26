@@ -1,0 +1,631 @@
+---
+title: "Chapter 6: Further Inference in Multiple Regression"
+#subtitle: "From the t-test to better regression decisions"
+#author: "Dejene"
+format:
+  revealjs:
+    theme: simple
+    transition: fade
+    center: false
+    slide-number: c/t
+    controls: true
+    progress: true
+    math: mathjax
+    css: chapter06_teaching_clean.css
+execute:
+  enabled: true
+---
+
+
+## Recall: the multiple regression model
+
+<br> 
+
+$$SALES=\beta_1+\beta_2PRICE+\beta_3ADVERT+e$$
+
+::: {.fragment .fade-in}
+- Estimating a regression is not the end of the analysis. 
+:::
+::: {.fragment .fade-in}
+- **How do we know/test whether a coefficient matters?**
+:::
+
+::: {.fragment .fade-in}
+<span style="color: #D97706; font-weight: bold;">Remark:</span> 
+
+Good econometrics is about asking good questions, not memorizing more formulas.
+:::
+
+
+---
+
+## A familiar test: the t-test
+
+$$SALES=\beta_1+\beta_2PRICE+\beta_3ADVERT+e$$
+
+<br>
+
+::: {.fragment .fade-in}
+Suppose we ask only: **Does the advertising matter?**
+:::
+
+::: {.fragment .fade-in}
+$$H_0:\;\beta_3=0$$
+:::
+
+::: {.fragment .fade-in}
+A **t-test** helps answer this *one-coefficient* question.
+:::
+---
+
+## A familiar test: the t-test
+
+Suppose the test gives:
+
+$$p=0.02$$
+
+::: {.fragment .fade-in}
+**Question:** Should we reject $H_0$ at the **5% significance level**?
+:::
+
+::: {.fragment .fade-in}
+
+**Answer:** Yes, since; $$0.02<0.05$$
+
+**Decision:** Reject the null hypothesis.
+:::
+
+::: {.fragment .fade-in}
+The advertising coefficient is statistically significant.
+:::
+
+---
+
+## When is a t-test not enough?
+
+Suppose our model includes two advertising terms:
+
+$$\begin{aligned}
+SALES={}&\beta_1+\beta_2PRICE\\
+&+\beta_3ADVERT+\beta_4ADVERT^2+e
+\end{aligned}$$
+
+We want to know whether **advertising matters as a group**.
+
+---
+
+## The question becomes a joint test
+
+**Null hypothesis:** Neither advertising term matters.
+
+$$H_0:\ \beta_3=0\ \text{and}\ \beta_4=0$$
+
+**Alternative:** At least one is not zero.
+
+$$H_0:\ \beta_3 \neq 0\ ,\ \beta_4 \neq 0$$
+
+::: {.takeaway}
+Testing several restrictions together calls for an **F-test**.
+:::
+
+---
+
+## Remember the difference
+
+<br> <br>
+
+**t-test:** Tests one coefficient.
+
+**F-test:** Can test several coefficients **together**.
+
+
+---
+
+## Question: 
+
+
+<br> <br> 
+
+::: {.fragment}
+If we test $\beta_3=0$ and $\beta_4=0$ simultaneously, which test should we use?
+:::
+
+---
+
+
+## Two models, one question
+
+### Unrestricted model:
+
+$$
+SALES = \beta_1 + \beta_2 PRICE + \beta_3 ADVERT + \beta_4 ADVERT^2 + e
+$$
+
+
+::: {.fragment .fade-in}
+
+Let us assume that advertising has **no** effect (i.e., $H_0: \beta_3=0,\beta_4=0$ is true)
+
+:::
+
+::: {.fragment .fade-in}
+### Restricted model:
+
+$$
+SALES = \beta_1 + \beta_2 PRICE + e
+$$
+
+
+:::
+
+---
+
+## Compare the two models
+
+We ask:
+
+**Does adding the advertising terms improve the model enough?**
+
+- Small improvement → weak evidence against $H_0$.
+- Large improvement → stronger evidence against $H_0$.
+
+::: {.takeaway}
+The **F-test** measures this improvement relative to unexplained variation.
+:::
+
+---
+
+## What is SSE?
+
+<br>
+
+**SSE** = Sum of Squared Errors.
+
+It measures how far observed values are from fitted values.
+
+**Lower SSE means a better fit in the sample.**
+
+But adding variables usually lowers SSE, even if they are not useful.
+
+---
+
+## How the F-test works
+
+$$\boxed{F = \frac{(SSE_R-SSE_U)/J}{SSE_U/(N-K)}}$$
+
+- $SSE_R$: from the **restricted** model
+- $SSE_U$: from the **unrestricted** model
+- $J$: number of restrictions; $N$: sample size
+- $K$: number of parameters in the unrestricted model, **including the intercept**
+
+**Interpretation:** Large $F$ means the restrictions substantially worsen the fit.
+
+---
+
+## How the F-test works
+
+
+ - Under the classical regression assumptions and $H_0$, $$F\sim F_c(1-\alpha,J,N-K)$$
+
+ - Compare the $F$-value to a critical value $F_c$.
+ - Reject the $H_0$ if $F \geq F_c$, keep otherwise
+
+
+---
+
+## The $F-$ distribution 
+
+```{r, echo=FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics("C:/Users/dki007/OneDrive - UiT Office 365/H2026_folder/SOK-3081/chapter_06/F-distribution.png")
+```
+
+---
+
+## Now It's Your Turn!
+
+Estimate the model in R, and answer the questions that follows.
+
+$$
+SALES_i = \beta_1 + \beta_2 PRICE_i
++ \beta_3 ADVERT_i + \beta_4 ADVERT_i^2 + e_i
+$$
+
+
+1. State the $H_0$ and $H_1$to test whether advertising expenditure has a joint effect on sales.
+
+2. Conduct an F-test in R to test the hypotheses in question 1. Report the F-statistic and p-value.
+
+3. At the 5% significance level, what is your conclusion? 
+
+---
+
+
+## What the F-test does—and does not—say
+
+**It tells us:** At least one advertising coefficient is different from zero.
+
+**It does not tell us:**
+
+- Which of the two advertising terms matters individually.
+
+
+
+---
+
+## Testing the significance of the model
+
+Consider a general regression model:
+$$y=\beta_1+\beta_2x_2+\cdots+\beta_Kx_K+e$$
+
+
+To examine whether we have a viable explanatory model, we test
+
+$$
+\begin{aligned}
+H_0 &: \beta_2 =0, \beta_3 =0, \cdots = \beta_K = 0 \\[12pt]
+H_1 &: \text{At least one } \beta_k \neq 0,
+\quad k = 2, 3, \ldots, K
+\end{aligned}
+$$
+
+- The null hypothesis is a **joint** one because it has $K-1$ components. 
+
+- This is the **overall significance** test.
+
+---
+
+## Testing the significance of the model
+
+
+$$ y = \beta_1 + e, \ \ \ \ \ \    \space \text{(the restricted model)}$$
+
+- The $F-$test statistic can be modified and written as:
+$$\boxed{F = \frac{(SST-SSE)/K-1}{SSE/(N-K)}}$$
+
+- The calculated F-value can be compared with $$F_c=F_c(1-\alpha, K-1,N-K)$$
+
+- Reject the $H_0$ if $F \geq F_c$, keep otherwise 
+
+---
+
+## Your Turn! 
+
+Estimate the model in R, and answer the questions that follows.
+
+$$
+SALES = \beta_1 + \beta_2 PRICE
++ \beta_3 ADVERT_i + \beta_4 ADVERT^2 + e
+$$
+
+
+1. State the $H_0$ and $H_1$ for testing the overall significance of the regression model.
+
+2. Using the regression output in R, report the F-statistic and its corresponding p-value.
+
+3. At the 5% significance level, is the regression model statistically significant? Explain your conclusion.
+
+---
+
+## When to use $t$ versus $F$
+
+| Question | Typical test |
+|:--|:--|
+| Is **one** coefficient zero? | $t$-test |
+| Are **several** coefficients jointly zero? | $F$-test |
+| Is the **entire regression** significant? | Overall $F$-test |
+| Does a **linear combination** equal a value? | $F$-test / Wald test |
+|||
+
+---
+
+## When are $t$ and $F-$ tests equivalent
+
+$$
+SALES = \beta_1 + \beta_2 PRICE
++ \beta_3 ADVERT_i + \beta_4 ADVERT^2 + e
+$$
+
+Suppose now we want to test:
+$$
+\begin{aligned}
+H_0 &: \beta_2 =0 , \ \ \ \ 
+H_1: \beta_2 \neq 0
+\end{aligned}
+$$
+
+**Question:** Can we use an $F-$ test or $t-$ test?
+
+<br> 
+
+::: {.fragment .fade-in}
+**Check:** 
+
+Using the previous example that $H_0: \beta_2=0 \text H_1: \beta \neq 0$
+
+:::
+---
+
+## When are $t$ and $F-$ tests equivalent
+
+- Two-tail $t-$ tests are equivalent to $F-$ tests when there is a single hypothesis in $H_0$. 
+- An $F-$ test cannot be used as an alternative to a one-tail $t-$ test.
+- For a **single equality restriction**, in the classical linear regression setup:$\boxed{F=t^2}$
+
+
+---
+
+## F-test: what should you remember?
+
+1. Write the **joint null hypothesis**.
+2. Obtain the **F-statistic or p-value**.
+3. Compare the p-value with the significance level.
+4. State the conclusion **in words**.
+
+::: {.takeaway}
+Always interpret the decision in terms of the economic question.
+:::
+
+---
+
+## Check your understanding
+
+Suppose given a wage model: $$Wage = \beta_1+\beta_2 educ + \beta_3 exper + \beta_4 exper^2+e$$
+
+**Question:** Do the *two experience terms together* improve the wage model?
+
+1. Write the null hypothesis.
+2. Would you use $t$ or $F$?
+3. If $p=0.03$, what is your conclusion at 5%?
+
+::: {.fragment}
+**Answer:** $H_0:\beta_3=\beta_4=0$. 
+
+Use an F-test. Reject at 5%; the two terms are jointly significant.
+:::
+
+---
+
+## 2. Can economic theory help estimation?
+
+Sometimes we know more than what is contained in our sample.
+
+**Example: Demand theory** suggests that increasing all prices and income by the *same percentage* should leave real demand unchanged.
+
+$$ln(q)=\beta_1 +\beta_2ln(pb)+\beta_3ln(pl)+\beta_4 ln(pr)+\beta_5ln(I)+e $$
+
+$$\beta_2+\beta_3+\beta_4+\beta_5=0$$
+
+We can impose this relationship as a **restriction** when estimating.
+
+---
+
+## 2. Can economic theory help estimation?
+
+- Substituting the restriction gives:
+
+$$ln(q)=\beta_1 +\beta_2ln(\frac{pb}{pr})+\beta_3ln(\frac{pl}{pr})+\beta_5ln(\frac{I}{pr})+e $$
+
+
+::: {.takeaway}
+Restrictions add information, but a wrong restriction can bias results.
+:::
+
+
+---
+
+## Your Turn! 
+
+- Estimate the restricted model above using the **beer** data from the text book.
+- What is the price elasticity of demand for beer, liquor,remaining goods and services, and income?
+
+---
+
+
+## 3: Choosing a regression model
+
+Two questions come first:
+
+**Are we explaining a causal effect?**
+
+or
+
+**Are we trying to predict an outcome?**
+
+The answer affects which variables we should include.
+
+---
+
+## 3. Choosing a regression model
+
+:::: {.columns}
+::: {.column width="49%"}
+### Causality
+
+**Question:** What happens to wages *because of* one more year of education?
+
+We need credible assumptions and appropriate control variables.
+:::
+::: {.column width="49%"}
+### Prediction
+
+**Question:** What wage do we expect for a person with these characteristics?
+
+We care primarily about performance on new observations.
+:::
+::::
+
+**A variable can be useful for prediction without having a causal effect.**
+
+---
+
+
+## What if we omit an important variable?
+
+Suppose we study the relationship between **education and wages**.
+
+But we leave out **ability**.
+
+If ability affects wages **and** is related to education, the education coefficient may be biased.
+
+::: {.takeaway}
+This is **omitted variable bias**.
+:::
+
+---
+
+
+## Omitted-variable bias
+
+Suppose the true model is:
+
+$$y=\beta_1+\beta_2x+\beta_3z+e$$
+
+But we estimate $y$ using only $x$.
+
+Bias is a concern when:
+
+1. $z$ actually affects $y$ ($\beta_3\neq0$), **and**
+2. $z$ is correlated with $x$.
+
+$$\operatorname{Bias}(\widehat\beta_2)\ \approx\ \beta_3\frac{\operatorname{Cov}(x,z)}{\operatorname{Var}(x)}$$
+
+
+---
+
+## Irrelevant variables: the other mistake
+
+A variable with no true effect may add little useful information.
+
+It can make our coefficient estimates **less precise**.
+
+
+**Lesson:** Neither “include everything” nor “include only significant variables” is a reliable modeling rule.
+
+---
+
+## How to assess specification
+
+Ask the simple questions:
+
+1. Does the specification or functional form make **economic sense**?
+2. Have we omitted an important variable?
+3. Do residual plots suggest a **missed pattern**?
+4. Are conclusions robust to **reasonable alternatives**?
+
+
+**RESET** is one additional test for possible misspecification.
+
+---
+
+## 6.4: Prediction
+
+A regression can be used to predict an outcome.
+
+For example, predict the **sales** of a store for a given price and advertising expenditure.
+
+A prediction is not guaranteed to equal the actual outcome.
+
+::: {.takeaway}
+Predictions contain uncertainty.
+:::
+
+---
+
+## How do we compare prediction models?
+
+A model should predict **new observations**, not only fit past data.
+
+We can reserve some observations as a **test sample**.
+
+Then compare predicted and actual values.
+
+**Smaller prediction errors are better.**
+
+---
+
+## Which model predicts better?
+
+Compare candidate models with evidence beyond in-sample $R^2$.
+
+| Measure | What to look for |
+|:--|:--|
+| Adjusted $R^2$ | Higher (in-sample, penalizes complexity) |
+| AIC / BIC (SC) | Lower among comparable models |
+| Holdout RMSE | **Lower on data not used for fitting** |
+
+$$RMSE=\sqrt{\frac1m\sum_{i=1}^{m}(y_i-\widehat y_i)^2}$$
+
+**Teaching priority:** Holdout performance is often the most persuasive evidence of predictive ability.
+
+---
+
+
+## 6.5: What is collinearity?
+
+Two explanatory variables may move closely together.
+
+For example, **advertising on TV** and **advertising online** may increase at the same time.
+
+Then it is difficult to identify their **separate effects**.
+
+---
+
+## Why does collinearity matter?
+
+Strong collinearity can produce:
+
+- Large standard errors.
+- Small t-statistics.
+- Unstable coefficient estimates.
+
+::: {.takeaway}
+An insignificant t-test does not always mean a variable is unimportant.
+:::
+
+---
+
+## What should you remember from Chapter 6?
+
+| Question | Main tool / idea |
+|:--|:--|
+| Do variables matter together? | Joint **F-test** |
+| Can theory help? | **Restricted** least squares |
+| Did we choose the right variables? | **Specification**, controls, RESET |
+| Will our forecasts generalize? | **Prediction intervals**, holdout RMSE |
+| Why are standard errors large? | **Collinearity**, VIF |
+| Parameters enter nonlinearly? | **Nonlinear least squares** |
+
+---
+
+
+## Check your understanding
+
+**1.** A test of $\beta_2=0$ only: t-test or F-test?
+
+**2.** A test of $\beta_2=\beta_3=0$: t-test or F-test?
+
+**3.** If the p-value is $0.03$, what do we decide at 5%?
+
+**4.** Why might two related explanatory variables cause large standard errors?
+
+---
+
+## Answers
+
+**1.** t-test (an F-test is also possible for one restriction).
+
+**2.** F-test.
+
+**3.** Reject the null hypothesis.
+
+**4.** The data do not clearly separate the variables' individual effects.
+
+---
+
+## For independent reading
+
+*Principles of Econometrics*, 5th ed., Chapter 6.
+
+Prioritize Sections **6.1, 6.3, 6.4 and 6.5**.
+
+Sections **6.2 and 6.6** are introduced briefly here; refer to the textbook for more detail.
