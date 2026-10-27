@@ -88,6 +88,8 @@
 |||[R code from the class](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/Rcode_from_class_chap06.R)|
 |||[chapter_06 html](https://uit-sok-3081-h26.github.io/S19_ch06_further_inference_mr.html?utm_source=chatgpt.com#/restricted-and-unrestricted-models)|
 ||||
+|||[chapter 06, R code](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/S19_ch06_further_inference_mr.R)|
+||||
 | 20 | 28/10   | Seminar chapter 6   |
 | 21 | 29/10   | Chapter 7   |
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=0cc6111f-0182-4bee-aa59-aee500c5110b)    |
