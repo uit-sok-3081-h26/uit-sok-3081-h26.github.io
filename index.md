@@ -39,7 +39,7 @@ Curriculum: The first eight chapters of the book and the appendices.
 Announcements and messages are posted in Canvas.
 
 ## Home Assignments, obligatory or not?
-You have an assignment portfolio. We will post them in Canvas. Doing these earns various amounts of points for your portfolio. There will be a total of 100 points during the semester. You need 70 points to pass and be eligible for the final exam. This means that you do not have to do all assignments. If you skip one, new chances will come.
+This semester, there are two mandatory assignments, both posted in Canvas. You must submit both assignments to be eligible for the final exam. Approval is based on making a reasonable attempt at the tasks; fully correct solutions are not required. These requirements replace the previously announced points-based assignment portfolio.
 
 ## Administrative Questions
 
