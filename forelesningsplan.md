@@ -91,10 +91,11 @@
 | 21 | 29/10   | Chapter 5 seminar   |
 ||| [seminar questions Word](lectures/S18_ch05_exam_seminar.docx) [seminar questions PDF](lectures/S18_ch05_exam_seminar.pdf) [seminar empty R file](lectures/S18_ch05_exam_seminar_student.R) |
 |||[seminar solutions pdf](lectures/S18_ch05_exam_seminar_solutions.pdf)  [seminar solutions R](lectures/S18_ch05_exam_seminar_solutions.R)|
-| 22 | ??/10   | Seminar chapter 7   |
+||||
+| 22  | 03/11   | [Chapter 07](https://uit-sok-3081-h26.github.io/chapter-07.html?utm_source=chatgpt.com)  |
+||||
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=0cc6111f-0182-4bee-aa59-aee500c5110b)    |
-| 23 | 03/11   | Chapter 8   |
-| 24 | 04/11   | Seminar chapter 8   |
-| 25 | 12/11  | Summery   |
+| 23 | 04/11   | chapter 8   |
+| 24 | 12/11  |    |
 |  | 27/11   | Exam 09:00-13:00   |
 |  |    |    |
