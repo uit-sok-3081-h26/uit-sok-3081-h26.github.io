@@ -96,6 +96,7 @@
 ||||
 |  |    | ["Old" video](https://uit.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=0cc6111f-0182-4bee-aa59-aee500c5110b)    |
 | 23 | 04/11   | chapter 8   |
+|||[Rcode for chap-08](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/Chapter_08.R)|
 | 24 | 12/11  |    |
 |  | 27/11   | Exam 09:00-13:00   |
 |  |    |    |
