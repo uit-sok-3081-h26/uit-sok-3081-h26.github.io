@@ -98,6 +98,8 @@
 | 23 | 04/11   | chapter 8   |
 |||[Chapter-08](https://uit-sok-3081-h26.github.io/chapter_08.html)|
 |||[Rcode for chap-08](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/Chapter_08.R)|
-| 24 | 12/11  |    |
+||||
+| 24 | 12/11  | [Sample_closed part_exam_practice_questions](https://uit-sok-3081-h26.github.io/SOK-3081_exam_practice_questions.html?utm_source=chatgpt.com#/title-slide)  |
+||||
 |  | 27/11   | Exam 09:00-13:00   |
 |  |    |    |
