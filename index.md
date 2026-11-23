@@ -45,5 +45,8 @@ This semester, there are two mandatory assignments, both posted in Canvas. You m
 
 For administrative inquiries, please send an email to: [hhcampus@hjelp.uit.no](mailto:hhcampus@hjelp.uit.no){:target="blank"}. There, you will receive help from the School of Business Administration.
 
+
+
+
    
 
