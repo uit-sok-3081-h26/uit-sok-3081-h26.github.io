@@ -60,7 +60,7 @@ The exam is in English and consists of two parts. You will submit your answers t
 - **Part 1 is closed book** and counts for 70% of the final grade.
 - **Part 2 is open book** and counts for 30% of the final grade.
 
-Part 2 will start at either **10:00 or 10:30**. We will confirm the exact start time as soon as possible.
+Part 2 will start at **10:00**.
 
 ### Where to go
 
@@ -112,7 +112,7 @@ Paste the code and output into WISEflow as text. A correct procedure can earn pa
 
 You may use AI in Part 2 under **UiT’s Level 4 rules**. For example, you may use it to write or debug R code. You are responsible for checking the code, results and explanations you submit. Use tools permitted under UiT’s guidelines, such as ChatUiT.
 
-If you use AI, state in the designated text box **which tools you used, what tasks you asked each tool to do, and how you checked its output**. Identify AI-generated material where you use it in your answer, whether you quote or paraphrase it. Keep relevant chat excerpts in case UiT asks to see them. You do not need to submit your chat logs with the exam.
+If you use AI, state in the designated text box **which tools you used, what tasks you asked each tool to do, and how you checked its output**. 
 
 [UiT’s exam rules and guidance on AI use (Norwegian)](https://uit.no/eksamen)
 
