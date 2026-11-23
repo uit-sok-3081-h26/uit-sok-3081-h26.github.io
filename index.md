@@ -88,7 +88,7 @@ In WISEflow, you will have access to a **calculator** and a **formula sheet** in
 - [Formula sheet in English](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/lectures/SOK-3081_formula_sheet.pdf)
 - [Formula sheet in Norwegian](https://github.com/uit-sok-3081-h26/uit-sok-3081-h26.github.io/blob/main/lectures/SOK-3081_formelsamling.pdf)
 
-You can expect true/false, multiple-choice, fill-in-the-blank and drag-and-drop questions, as well as questions that require a numerical answer.
+You can expect true/false, multiple-choice, fill-in-the-blank and drag-and-drop questions, as well as questions that require a numerical answer. **Part 1 consists of 65 subquestions, each worth one point.**
 
 Enter your answers directly in WISEflow. **You must submit Part 1 before starting Part 2. Once you submit Part 1, you cannot return to it.** Follow the invigilators’ instructions when moving to Part 2.
 
