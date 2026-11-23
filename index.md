@@ -45,7 +45,7 @@ This semester, there are two mandatory assignments, both posted in Canvas. You m
 
 For administrative inquiries, please send an email to: [hhcampus@hjelp.uit.no](mailto:hhcampus@hjelp.uit.no){:target="blank"}. There, you will receive help from the School of Business Administration.
 
-# SOK-3081 exam information
+## SOK-3081 exam information
 
 
 The SOK-3081 exam takes place on:
@@ -62,7 +62,7 @@ The exam is in English and consists of two parts. You will submit your answers t
 
 Part 2 will start at either **10:00 or 10:30**. We will confirm the exact start time as soon as possible.
 
-## Where to go
+### Where to go
 
 Kraft sportssenter is at **Framstredet 79, Tromsø**. Go to **section 2 of the sports hall**, listed as **Idrettsbane (036-2), Del 2** in the exam schedule. [Map and directions to Kraft sportssenter](https://www.google.com/maps/search/?api=1&query=Kraft+sportssenter%2C+Framstredet+79%2C+Troms%C3%B8)
 
@@ -70,7 +70,7 @@ Check your assigned exam room and candidate number in Studentweb. Select UiT as 
 
 Arrive at the exam room by **08:30** and log in to WISEflow by **08:45**. You must take off outdoor shoes before entering the hall. You may bring indoor shoes. [UiT’s exam venue information (Norwegian)](https://uit.no/eksamen)
 
-## What to bring and how to prepare
+### What to bring and how to prepare
 
 Bring your laptop, charger, valid ID and a pen. Scratch paper will be provided. Printed notes and physical books are prohibited in both parts.
 
@@ -79,7 +79,7 @@ Bring your laptop, charger, valid ID and a pen. Scratch paper will be provided. 
 - [UiT guide to digital exams (English)](https://en.uit.no/digitalexams)
 - [UiT guide to digital exams (Norwegian)](https://uit.no/digitaleksamen)
 
-## Part 1 — Closed book (70% of the final grade)
+### Part 1 — Closed book (70% of the final grade)
 
 You will use the WISEflow lockdown browser. You cannot open your own files or notes, use R or other applications, or access the internet.
 
@@ -92,13 +92,13 @@ You can expect true/false, multiple-choice, fill-in-the-blank and drag-and-drop 
 
 Enter your answers directly in WISEflow. **You must submit Part 1 before starting Part 2. Once you submit Part 1, you cannot return to it.** Follow the invigilators’ instructions when moving to Part 2.
 
-## Part 2 — Open book (30% of the final grade)
+### Part 2 — Open book (30% of the final grade)
 
 You will analyse a dataset from the course textbook in R, estimate econometric models and interpret your results. Enter your written answers directly in the WISEflow text boxes.
 
 You may use R, files saved on your laptop, digital notes and textbooks, course materials and R code from Canvas, and internet resources, including AI under the rules below. **This is an individual exam. During the exam, you may communicate only with the invigilators.** Cite external sources you use in your answers.
 
-### What to include in R-based answers
+#### What to include in R-based answers
 
 State your answer clearly and interpret the result when asked. Include the following in the relevant WISEflow text box.
 
@@ -108,7 +108,7 @@ State your answer clearly and interpret the result when asked. Include the follo
 
 Paste the code and output into WISEflow as text. A correct procedure can earn partial credit even if your final answer is incorrect.
 
-### Using AI in Part 2
+#### Using AI in Part 2
 
 You may use AI in Part 2 under **UiT’s Level 4 rules**. For example, you may use it to write or debug R code. You are responsible for checking the code, results and explanations you submit. Use tools permitted under UiT’s guidelines, such as ChatUiT.
 
