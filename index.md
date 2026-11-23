@@ -64,7 +64,7 @@ Part 2 will start at either **10:00 or 10:30**. We will confirm the exact start 
 
 ### Where to go
 
-Kraft sportssenter is at **Framstredet 79, Tromsø**. Go to **section 2 of the sports hall**, listed as **Idrettsbane (036-2), Del 2** in the exam schedule. [Map and directions to Kraft sportssenter](https://www.google.com/maps/search/?api=1&query=Kraft+sportssenter%2C+Framstredet+79%2C+Troms%C3%B8)
+Kraft sportssenter is at **Framstredet 79, Tromsø**. Go to **section 2 of the sports hall**, listed as **Idrettsbane (036-2), Del 2** in the exam schedule. [Map and directions to Kraft sportssenter](https://www.google.com/maps/search/?api=1&query=Kraft+sportssenter%2C+Framstredet+79%2C+Troms%C3%B8){:target="blank"}
 
 Check your assigned exam room and candidate number in Studentweb. Select UiT as your institution and find SOK-3081 under your exam registrations. [Studentweb](https://fsweb.no/studentweb/velgInstitusjon.jsf) · [UiT’s published exam schedule](https://en.uit.no/eksamen/dato?fakNr=34&instNr=13)
 
